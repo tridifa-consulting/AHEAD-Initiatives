@@ -29,6 +29,7 @@ const navItems = [
       { label: "Memorandum & Articles", href: "/about#moa" },
       { label: "Financials & Reports", href: "/about#financials" },
       { label: "Compliances", href: "/about#compliances" },
+      { label: "Policies", href: "/about#policies" },
     ],
   },
   {
