@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Wheat,
@@ -15,6 +17,12 @@ import {
   ChevronRight,
   MapPin,
 } from "lucide-react";
+
+const heroSlides = [
+  { src: "/hero/hero-children-sunset.jpg", alt: "Children playing at sunset in rural India" },
+  { src: "/hero/hero-education.jpg", alt: "Children learning with slates in a rural school" },
+  { src: "/hero/hero-farmland.jpg", alt: "Aerial view of lush green farmlands in Eastern India" },
+];
 
 const initiatives = [
   {
@@ -72,29 +80,47 @@ const stats = [
 ];
 
 export default function HomePage() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <>
-      {/* Hero Section */}
+      {/* Hero Section with Image Slideshow */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1E3F66] via-[#1a365d] to-[#0f2847]">
-          {/* Decorative elements */}
-          <div className="absolute top-20 right-20 w-72 h-72 bg-[#2d6a4f]/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-10 w-96 h-96 bg-[#e07a5f]/10 rounded-full blur-3xl" />
+        {/* Slideshow Background */}
+        {heroSlides.map((slide, index) => (
+          <div
+            key={slide.src}
+            className="absolute inset-0 transition-opacity duration-[2000ms] ease-in-out"
+            style={{ opacity: currentSlide === index ? 1 : 0 }}
+          >
+            <Image
+              src={slide.src}
+              alt={slide.alt}
+              fill
+              className="object-cover"
+              priority={index === 0}
+              sizes="100vw"
+            />
+          </div>
+        ))}
+
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1E3F66]/85 via-[#1a365d]/80 to-[#0f2847]/85" />
+
+        {/* Subtle decorative elements on top of overlay */}
+        <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-white/[0.03] rounded-full" />
-          {/* Dot pattern */}
-          <div
-            className="absolute inset-0 opacity-[0.04]"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle, white 1px, transparent 1px)",
-              backgroundSize: "30px 30px",
-            }}
-          />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="max-w-3xl">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-blue-200 text-sm mb-8 border border-white/10 animate-fade-in-up">
@@ -142,10 +168,28 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-pulse" />
+        {/* Slide indicators + scroll hint */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-6">
+          {/* Slide dots */}
+          <div className="flex items-center gap-2">
+            {heroSlides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`rounded-full transition-all duration-500 ${
+                  currentSlide === index
+                    ? "w-8 h-2 bg-[#e07a5f]"
+                    : "w-2 h-2 bg-white/40 hover:bg-white/60"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+          {/* Scroll indicator */}
+          <div className="animate-bounce">
+            <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+              <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-pulse" />
+            </div>
           </div>
         </div>
       </section>
