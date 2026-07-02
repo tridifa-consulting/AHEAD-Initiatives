@@ -10,15 +10,15 @@ const footerLinks = {
     { label: "Strategy", href: "/initiatives#strategy" },
   ],
   resources: [
-    { label: "Printed Materials", href: "/resources/print" },
-    { label: "Audio-Visual", href: "/resources/av" },
-    { label: "Image Gallery", href: "/resources/gallery" },
+    { label: "Publications", href: "/#publications" },
+    { label: "Videos & Media", href: "/#media" },
+    { label: "Reports & Transparency", href: "/#reports" },
   ],
   organization: [
-    { label: "About Us", href: "/about" },
-    { label: "Board of Directors", href: "/contact#board" },
-    { label: "Core Team", href: "/contact#team" },
-    { label: "Support Us", href: "/contact" },
+    { label: "Our Story", href: "/#story" },
+    { label: "Board & Team", href: "/#contact" },
+    { label: "Philosophy", href: "/#philosophy" },
+    { label: "Contact & Support", href: "/#contact" },
   ],
 };
 

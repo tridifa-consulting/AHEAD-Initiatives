@@ -17,6 +17,7 @@
   --color-accent: var(--accent);
   --color-muted: var(--muted);
   --font-sans: var(--font-inter);
+  --font-serif: var(--font-serif);
 }
 
 body {
@@ -89,3 +90,12 @@ html {
 .delay-200 { animation-delay: 200ms; }
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
+
+/* utility: hide horizontal scrollbars on the chapter nav */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
