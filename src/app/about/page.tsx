@@ -27,7 +27,7 @@ const sections = [
   { id: "policies", label: "Policies", icon: ScrollText },
 ];
 
-/* ── Annual Reportss ── */
+/* ── Annual Reports ── */
 const annualReports = [
   { year: "2025", file: "/pdf/Annual Report and Financial Statements 2025.pdf" },
   { year: "2024", file: "/pdf/Annual Report and Financial Statements 2024.pdf" },
