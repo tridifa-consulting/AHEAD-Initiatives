@@ -9,6 +9,24 @@ import CountUp from "./CountUp";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
+/** Verified metrics (seeded from the original site). Used whenever the CMS
+ *  value is missing or malformed, so the hero can never show 0 or -1. */
+const VERIFIED_STATS = [
+  { value: "25+", label: "Gram Panchayat Partnerships" },
+  { value: "82",  label: "Published Materials" },
+  { value: "16+", label: "Years of Impact" },
+  { value: "30+", label: "Core Team Members" },
+];
+
+function safeStats(stats: { value?: unknown; label?: unknown }[] | undefined) {
+  const ok = (stats ?? []).filter(
+    (s): s is { value: string; label: string } =>
+      typeof s?.value === "string" && /^\d+/.test(s.value) &&
+      typeof s?.label === "string" && s.label.length > 0
+  );
+  return ok.length >= 3 ? ok : VERIFIED_STATS;
+}
+
 export default function Hero({
   title,
   subtitle,
@@ -26,12 +44,15 @@ export default function Hero({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    setLoaded(true);
-    if (slides.length < 2 || reduced) return;
+    const t = setTimeout(() => setLoaded(true), 0);
+    if (slides.length < 2 || reduced) return () => clearTimeout(t);
     intervalRef.current = setInterval(
       () => setIndex((i) => (i + 1) % slides.length), 7000
     );
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    return () => {
+      clearTimeout(t);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [slides.length, reduced]);
 
   return (
@@ -67,7 +88,7 @@ export default function Hero({
       </AnimatePresence>
 
       {/* ── Gradient scrim ───────────────────────────────────────── */}
-      <div aria-hidden className="absolute inset-0 z-10 bg-gradient-to-t from-[#16324F] via-[#16324F]/60 to-[#16324F]/20" />
+      <div aria-hidden className="absolute inset-0 z-10 bg-gradient-to-t from-[#0d1f33] via-[#16324F]/72 to-[#16324F]/25" />
 
       {/* ── Content ──────────────────────────────────────────────── */}
       <div className="relative z-20 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pb-14 pt-36 sm:px-6 lg:px-8">
@@ -101,12 +122,12 @@ export default function Hero({
 
         {/* Stats band */}
         <motion.div
-          className="mt-12 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-[#FAF7F0]/15 pt-8 sm:grid-cols-4"
+          className="mt-14 grid grid-cols-2 gap-x-10 gap-y-8 border-t border-[#E9B44C]/25 pt-9 sm:grid-cols-4"
           initial={loaded && !reduced ? { opacity: 0 } : {}}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.6 }}
         >
-          {stats.map((s, i) => (
+          {safeStats(stats).map((s, i) => (
             <motion.div
               key={s.label}
               initial={loaded && !reduced ? { opacity: 0, y: 10 } : {}}

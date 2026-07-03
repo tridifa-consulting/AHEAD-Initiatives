@@ -21,7 +21,7 @@ export default function Chapter({
   const plate = tone === "ink" ? "text-[#E9B44C]"       : "text-[#C65D3B]";
 
   return (
-    <section id={slug} className={`${bg} scroll-mt-[60px] py-20 sm:py-28`}>
+    <section id={slug} className={`${bg} scroll-mt-20 py-24 sm:py-32`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Chapter header */}
         <div className={`mb-12 border-b ${rule} pb-6 sm:mb-16`}>

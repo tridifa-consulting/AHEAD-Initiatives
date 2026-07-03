@@ -115,3 +115,32 @@ html {
   background: #e9b44c;
   color: #16324f;
 }
+
+
+/* ── Scroll model ─────────────────────────────────────────────
+   scroll-padding-top makes every #anchor land below the sticky
+   nav; scroll-behavior:smooth applies to anchor clicks only
+   (never to passive scrolling), and is removed entirely for
+   people who prefer reduced motion. */
+html {
+  scroll-padding-top: 76px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Field gallery marquee: right-to-left drift, seamless via doubled track */
+@keyframes marquee-rtl {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee {
+  animation-name: marquee-rtl;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee { animation: none; }
+}

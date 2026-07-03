@@ -7,6 +7,7 @@ import NoticeBanner from "@/components/flow/NoticeBanner";
 import PeopleGrid from "@/components/flow/PeopleGrid";
 import Prose from "@/components/flow/Prose";
 import PullQuote from "@/components/flow/PullQuote";
+import Manifesto from "@/components/flow/Manifesto";
 import GalleryFilmstrip from "@/components/flow/GalleryFilmstrip";
 import FilmLibrary from "@/components/flow/FilmLibrary";
 import PublicationsExplorer from "@/components/flow/PublicationsExplorer";
@@ -99,7 +100,10 @@ export default async function Home() {
               <Prose text={t(bySlug["story"].body)} className="max-w-3xl text-[#1F2933]/85" />
             </Reveal>
             <Reveal delay={100}>
-              <dl className="h-fit rounded-xl border border-[#16324F]/10 bg-white p-6 text-sm">
+              <dl className="h-fit rounded-2xl border border-[#16324F]/10 bg-white p-6 text-sm shadow-sm">
+                <div className="mb-4 border-b border-dashed border-[#16324F]/15 pb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-[#C65D3B]">
+                  From the record
+                </div>
                 <div className="pb-3">
                   <dt className="text-xs uppercase tracking-wider text-[#1F2933]/50">Registered</dt>
                   <dd className="mt-0.5 font-medium text-[#16324F]">{registration.registered}</dd>
@@ -122,13 +126,21 @@ export default async function Home() {
         </Chapter>
       )}
 
-      {bySlug["philosophy"] && (
-        <Chapter slug="philosophy" number={num("philosophy")} title={t(bySlug["philosophy"].title)} tone="white">
-          <Reveal>
-            <Prose text={t(bySlug["philosophy"].body)} className="max-w-3xl text-[#1F2933]/85" />
-          </Reveal>
-        </Chapter>
-      )}
+      {bySlug["philosophy"] && (() => {
+        // The seeded body is "**Vision:** … **Mission:**\n- …\n- …" — split it
+        // into a manifesto lockup; fall back to prose if the shape ever changes.
+        const raw = t(bySlug["philosophy"].body);
+        const visionMatch = /\*\*Vision:\*\*\s*([\s\S]*?)(?=\n\s*\n|\*\*Mission)/.exec(raw);
+        const missions = [...raw.matchAll(/^- (.+)$/gm)].map((m) => m[1]);
+        const vision = visionMatch?.[1]?.trim();
+        return (
+          <Chapter slug="philosophy" number={num("philosophy")} title={t(bySlug["philosophy"].title)} tone="white">
+            {vision && missions.length > 0
+              ? <Manifesto vision={vision} missions={missions} />
+              : <Reveal><Prose text={raw} className="max-w-3xl text-[#1F2933]/85" /></Reveal>}
+          </Chapter>
+        );
+      })()}
 
       {bySlug["work"] && (
         <Chapter slug="work" number={num("work")} title={t(bySlug["work"].title)} subtitle={t(bySlug["work"].subtitle)}>
@@ -142,8 +154,10 @@ export default async function Home() {
             <Reveal>
               <Prose text={t(bySlug["field"].body)} className="max-w-3xl text-[#1F2933]/85" />
             </Reveal>
-            <GalleryFilmstrip title="Education initiative" images={galleryEdu} />
-            <GalleryFilmstrip title="Food, nutrition & natural resources" images={galleryFood} />
+            <GalleryFilmstrip title="Activity based learning" images={galleryEdu.filter((m) => m.title === "Activity based learning")} />
+            <GalleryFilmstrip title="Education initiative" images={galleryEdu.filter((m) => m.title !== "Activity based learning")} />
+            <GalleryFilmstrip title="Home gardens & natural resource management" images={galleryFood.filter((m) => m.title === "Home gardens" || m.title === "Natural resource management" || m.title === "Afforestation")} />
+            <GalleryFilmstrip title="Food & nutrition" images={galleryFood.filter((m) => m.title === "Food & nutrition")} />
           </div>
         </Chapter>
       )}

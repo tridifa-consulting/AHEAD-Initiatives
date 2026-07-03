@@ -119,7 +119,9 @@ export default function PublicationsExplorer({ items }: { items: DocumentRow[] }
                       </span>
                     )}
                   </span>
-                  {href && <Download aria-hidden className="ml-auto mt-0.5 h-4 w-4 shrink-0 text-[#C65D3B]" />}
+                  {href
+                    ? <Download aria-hidden className="ml-auto mt-0.5 h-4 w-4 shrink-0 text-[#C65D3B]" />
+                    : <span className="ml-auto mt-0.5 shrink-0 rounded-full bg-[#16324F]/6 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#1F2933]/50">In print</span>}
                 </>
               );
               return (
@@ -135,7 +137,7 @@ export default function PublicationsExplorer({ items }: { items: DocumentRow[] }
                       {inner}
                     </a>
                   ) : (
-                    <div className="flex items-start gap-3 rounded-xl border border-[#16324F]/8 bg-white px-4 py-3 opacity-70" title="Available in print from AHEAD">
+                    <div className="flex items-start gap-3 rounded-xl border border-[#16324F]/8 bg-white px-4 py-3" title="Available in print from AHEAD">
                       {inner}
                     </div>
                   )}

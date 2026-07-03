@@ -21,17 +21,21 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
       .map((c) => [c.slug, document.getElementById(c.slug)] as [string, HTMLElement | null])
       .filter(([, el]) => el !== null) as [string, HTMLElement][];
 
+    let raf = 0;
     const obs = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setActive(visible[0].target.id);
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const visible = entries
+            .filter((e) => e.isIntersecting)
+            .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          if (visible[0]) setActive(visible[0].target.id);
+        });
       },
-      { rootMargin: "-35% 0px -55% 0px" }
+      { rootMargin: "-25% 0px -60% 0px" }
     );
     els.forEach(([, el]) => obs.observe(el));
-    return () => obs.disconnect();
+    return () => { obs.disconnect(); cancelAnimationFrame(raf); };
   }, [chapters]);
 
   /* navbar shadow on scroll */
@@ -42,10 +46,15 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* auto-centre active pill on small screens */
+  /* Auto-centre the active pill — horizontal ONLY, scoped to the nav strip.
+     (scrollIntoView could nudge the page vertically on every scroll-spy
+     change, which is exactly the "page jumps while scrolling" bug.) */
   useEffect(() => {
-    const link = barRef.current?.querySelector<HTMLAnchorElement>(`a[href="#${active}"]`);
-    link?.scrollIntoView({ block: "nearest", inline: "center", behavior: reduced ? "instant" : "smooth" });
+    const bar = barRef.current;
+    const link = bar?.querySelector<HTMLAnchorElement>(`a[href="#${active}"]`);
+    if (!bar || !link) return;
+    const targetLeft = link.offsetLeft - bar.clientWidth / 2 + link.clientWidth / 2;
+    bar.scrollTo({ left: Math.max(0, targetLeft), behavior: reduced ? "auto" : "smooth" });
   }, [active, reduced]);
 
   return (
