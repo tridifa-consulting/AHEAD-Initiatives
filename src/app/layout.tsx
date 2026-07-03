@@ -8,7 +8,7 @@ const serif = Source_Serif_4({ variable: "--font-serif", subsets: ["latin"], dis
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.aheadinitiatives.in";
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "AHEAD Initiatives — Addressing Hunger, Empowerment and Development",
   description:
@@ -50,6 +50,25 @@ const jsonLd = {
     "https://www.youtube.com/@aheadinitiatives4836",
   ],
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  // SEO defaults are editable in Admin → Site settings; fall back to the
+  // verified hardcoded values if the database is unreachable at build time.
+  try {
+    const { createPublicClient } = await import("@/lib/supabase/public");
+    const { data } = await createPublicClient()
+      .from("settings").select("value").eq("key", "seo").single();
+    const seo = data?.value as { default_title?: string; default_description?: string } | null;
+    if (seo?.default_title) {
+      return {
+        ...fallbackMetadata,
+        title: seo.default_title,
+        description: seo.default_description ?? fallbackMetadata.description,
+      };
+    }
+  } catch { /* fall through to verified defaults */ }
+  return fallbackMetadata;
+}
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

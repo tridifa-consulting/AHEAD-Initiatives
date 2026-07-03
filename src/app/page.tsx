@@ -6,12 +6,23 @@ import Hero from "@/components/flow/Hero";
 import NoticeBanner from "@/components/flow/NoticeBanner";
 import PeopleGrid from "@/components/flow/PeopleGrid";
 import Prose from "@/components/flow/Prose";
+import PullQuote from "@/components/flow/PullQuote";
+import GalleryFilmstrip from "@/components/flow/GalleryFilmstrip";
+import FilmLibrary from "@/components/flow/FilmLibrary";
 import PublicationsExplorer from "@/components/flow/PublicationsExplorer";
 import Reveal from "@/components/flow/Reveal";
 import WorkCards from "@/components/flow/WorkCards";
+import { draftMode } from "next/headers";
+import DraftBanner from "@/components/flow/DraftBanner";
+import BlogCards from "@/components/flow/BlogCards";
+import PartnersGrid from "@/components/flow/PartnersGrid";
+import SocialCards from "@/components/flow/SocialCards";
+import VideoGrid from "@/components/flow/VideoGrid";
 import {
-  getActiveNotices, getDocuments, getMedia, getPeople, getSections, getSettings,
+  getActiveNotices, getBlogPosts, getDocuments, getMedia, getPartners,
+  getPeople, getSections, getSettings, getSocialPosts, getVideos,
 } from "@/lib/content";
+import { createClient } from "@/lib/supabase/server";
 import { t } from "@/lib/types";
 
 /**
@@ -39,9 +50,19 @@ const navLabels: Record<string, string> = {
 };
 
 export default async function Home() {
-  const [sections, documents, people, heroSlides, notices, settings] = await Promise.all([
-    getSections(), getDocuments(), getPeople(), getMedia("hero"), getActiveNotices(), getSettings(),
+  // Draft preview: staff sessions read through RLS, which reveals drafts.
+  const { isEnabled: preview } = await draftMode();
+  const db = preview ? await createClient() : undefined;
+  const [sections, documents, people, heroSlides, notices, settings, videos, socialPosts, blogPosts, partners,
+    galleryEdu, galleryFood, avDocs, avLearning, portraitRows] = await Promise.all([
+    getSections(db), getDocuments(db), getPeople(db), getMedia("hero", db), getActiveNotices(db),
+    getSettings(db), getVideos(9, db), getSocialPosts(8, db), getBlogPosts(6, db), getPartners(db),
+    getMedia("gallery_education", db), getMedia("gallery_food", db),
+    getMedia("av_documentaries", db), getMedia("av_learning", db), getMedia("people", db),
   ]);
+  const portraits = Object.fromEntries(
+    portraitRows.map((m) => [m.id, m.url ?? m.file_path ?? ""]).filter(([, u]) => u)
+  ) as Record<string, string>;
 
   const bySlug = Object.fromEntries(sections.map((s) => [s.slug, s]));
   const workAreas = sections.filter((s) => s.parent_slug === "work");
@@ -58,6 +79,7 @@ export default async function Home() {
 
   return (
     <>
+      {preview && <DraftBanner />}
       <NoticeBanner notices={notices} />
       <ChapterNav chapters={chapters} />
 
@@ -114,9 +136,47 @@ export default async function Home() {
         </Chapter>
       )}
 
+      {bySlug["field"] && (
+        <Chapter slug="field" number={num("field")} title={t(bySlug["field"].title)} subtitle={t(bySlug["field"].subtitle)} tone="white">
+          <div className="space-y-10">
+            <Reveal>
+              <Prose text={t(bySlug["field"].body)} className="max-w-3xl text-[#1F2933]/85" />
+            </Reveal>
+            <GalleryFilmstrip title="Education initiative" images={galleryEdu} />
+            <GalleryFilmstrip title="Food, nutrition & natural resources" images={galleryFood} />
+          </div>
+        </Chapter>
+      )}
+
       {bySlug["publications"] && (
         <Chapter slug="publications" number={num("publications")} title={t(bySlug["publications"].title)} subtitle={`${publications.length} published materials across four collections`} tone="white">
           <PublicationsExplorer items={publications} />
+        </Chapter>
+      )}
+
+      {bySlug["blog"] && (
+        <Chapter slug="blog" number={num("blog")} title={t(bySlug["blog"].title)} subtitle={t(bySlug["blog"].subtitle)}>
+          <BlogCards posts={blogPosts} />
+        </Chapter>
+      )}
+
+      {bySlug["media"] && (
+        <Chapter slug="media" number={num("media")} title={t(bySlug["media"].title)} subtitle={t(bySlug["media"].subtitle)} tone="white">
+          <div className="space-y-14">
+            <FilmLibrary documentaries={avDocs} learning={avLearning} />
+            {videos.length > 0 && (
+              <section aria-label="From our YouTube channel">
+                <h3 className="mb-5 font-serif text-lg font-semibold text-[#16324F]">From our YouTube channel</h3>
+                <VideoGrid videos={videos} />
+              </section>
+            )}
+          </div>
+        </Chapter>
+      )}
+
+      {bySlug["social"] && (
+        <Chapter slug="social" number={num("social")} title={t(bySlug["social"].title)}>
+          <SocialCards posts={socialPosts} />
         </Chapter>
       )}
 
@@ -126,14 +186,30 @@ export default async function Home() {
         </Chapter>
       )}
 
+      {bySlug["partners"] && (
+        <Chapter slug="partners" number={num("partners")} title={t(bySlug["partners"].title)} subtitle={t(bySlug["partners"].subtitle)} tone="white">
+          <PartnersGrid partners={partners} />
+        </Chapter>
+      )}
+
+      <PullQuote
+        text="Our efforts would be misplaced and meaningless if we are not able to evoke the humanity in all of us to support our simple initiatives."
+        attribution="AHEAD Initiatives — Support our Initiatives"
+      />
+
       {bySlug["contact"] && (
         <Chapter slug="contact" number={num("contact")} title={t(bySlug["contact"].title)}>
           <div className="space-y-14">
+            {t(bySlug["contact"].body) && (
+              <Reveal>
+                <Prose text={t(bySlug["contact"].body)} className="max-w-3xl text-[#1F2933]/85" />
+              </Reveal>
+            )}
             <ContactBlock
               org={(settings.org ?? {}) as Record<string, string>}
               channels={(settings.channels ?? {}) as Record<string, string>}
             />
-            <PeopleGrid people={people} />
+            <PeopleGrid people={people} portraits={portraits} />
           </div>
         </Chapter>
       )}

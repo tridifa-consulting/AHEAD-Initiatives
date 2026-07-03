@@ -99,3 +99,19 @@ html {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+/* documentary hero: slow Ken Burns drift on the active slide */
+@keyframes kenburns {
+  from { transform: scale(1) translateY(0); }
+  to { transform: scale(1.08) translateY(-1.5%); }
+}
+.kenburns-active {
+  animation: kenburns 9s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kenburns-active { animation: none; }
+}
+::selection {
+  background: #e9b44c;
+  color: #16324f;
+}

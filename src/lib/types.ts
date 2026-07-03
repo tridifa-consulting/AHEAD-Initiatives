@@ -31,9 +31,12 @@ export type DocumentRow = {
   source: "local" | "drive" | "storage" | "external";
   file_path: string | null;
   external_url: string | null;
+  drive_file_id: string | null;
   drive_url: string | null;
   thumbnail_url: string | null;
   file_available: boolean;
+  status: "draft" | "published";
+  visible: boolean;
   sort_order: number;
 };
 
@@ -41,7 +44,7 @@ export type PersonRow = {
   id: string;
   name: string;
   role: string | null;
-  group_name: "board" | "project_directors" | "field_team" | "advisors";
+  group_name: "founder" | "board" | "project_directors" | "field_team" | "advisors";
   bio: I18nText;
   email: string | null; // masked by people_public unless opted in
   phone: string | null;
@@ -53,6 +56,7 @@ export type MediaRow = {
   id: string;
   title: string | null;
   alt_text: I18nText;
+  caption: I18nText;
   collection: string | null;
   file_path: string | null;
   url: string | null;
@@ -106,3 +110,12 @@ export function documentHref(d: Pick<DocumentRow, "source" | "file_path" | "exte
   if (d.source === "drive") return d.drive_url ?? d.external_url;
   return d.file_path; // local + storage paths are served by the site
 }
+
+export type PartnerRow = {
+  id: string;
+  name: string;
+  kind: string;
+  description: I18nText;
+  url: string | null;
+  sort_order: number;
+};

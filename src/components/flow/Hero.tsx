@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { MediaRow } from "@/lib/types";
 import { t } from "@/lib/types";
+import CountUp from "./CountUp";
 
 /** Full-bleed opening: slow photographic cross-fade beneath the serif thesis. */
 export default function Hero({
@@ -37,7 +38,7 @@ export default function Hero({
           priority={i === 0}
           sizes="100vw"
           className={`object-cover transition-opacity duration-[1800ms] motion-reduce:transition-none ${
-            i === index ? "opacity-100" : "opacity-0"
+            i === index ? "kenburns-active opacity-100" : "opacity-0"
           }`}
         />
       ))}
@@ -55,13 +56,22 @@ export default function Hero({
         <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-[#FAF7F0]/20 pt-8 sm:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label}>
-              <div className="font-serif text-3xl font-semibold text-[#FAF7F0] sm:text-4xl">{s.value}</div>
+              <div className="font-serif text-3xl font-semibold text-[#FAF7F0] sm:text-4xl"><CountUp value={s.value} /></div>
               <div className="mt-1 text-xs uppercase tracking-wider text-[#FAF7F0]/70 sm:text-sm sm:normal-case sm:tracking-normal">
                 {s.label}
               </div>
             </div>
           ))}
         </div>
+
+        <a
+          href="#story"
+          aria-label="Scroll to begin the story"
+          className="mt-10 inline-flex w-fit items-center gap-2 text-xs uppercase tracking-[0.25em] text-[#FAF7F0]/70 transition-colors hover:text-[#E9B44C]"
+        >
+          Scroll to begin
+          <span aria-hidden className="inline-block animate-bounce motion-reduce:animate-none">↓</span>
+        </a>
       </div>
     </section>
   );
