@@ -1,48 +1,58 @@
-import Reveal from "./Reveal";
+"use client";
 
-/**
- * A chapter of the single-flow page.
- * The numbered plate encodes real sequence — the page is literally
- * a guided reading order — and anchors the scroll-spy navigation.
- */
+import { useRef } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
+
 export default function Chapter({
-  slug,
-  number,
-  title,
-  subtitle,
-  tone = "paper",
-  children,
+  slug, number, title, subtitle, tone = "paper", children,
 }: {
-  slug: string;
-  number: number;
-  title: string;
-  subtitle?: string;
-  tone?: "paper" | "white" | "ink";
-  children: React.ReactNode;
+  slug: string; number: number; title: string;
+  subtitle?: string; tone?: "paper" | "white" | "ink"; children: React.ReactNode;
 }) {
-  const bg =
-    tone === "ink"
-      ? "bg-[#16324F] text-[#FAF7F0]"
-      : tone === "white"
-        ? "bg-white text-[#1F2933]"
-        : "bg-[#FAF7F0] text-[#1F2933]";
-  const rule = tone === "ink" ? "border-[#FAF7F0]/20" : "border-[#16324F]/15";
-  const sub = tone === "ink" ? "text-[#FAF7F0]/70" : "text-[#1F2933]/65";
+  const ref = useRef<HTMLHeadingElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -12% 0px" });
+  const reduced = useReducedMotion();
+
+  const bg = tone === "ink" ? "bg-[#16324F] text-[#FAF7F0]"
+    : tone === "white"      ? "bg-white text-[#1F2933]"
+                            : "bg-[#FAF7F0] text-[#1F2933]";
+  const rule  = tone === "ink" ? "border-[#FAF7F0]/15" : "border-[#16324F]/10";
+  const sub   = tone === "ink" ? "text-[#FAF7F0]/60"   : "text-[#1F2933]/55";
+  const plate = tone === "ink" ? "text-[#E9B44C]"       : "text-[#C65D3B]";
 
   return (
-    <section id={slug} className={`${bg} scroll-mt-20 py-16 sm:py-24`}>
+    <section id={slug} className={`${bg} scroll-mt-[60px] py-20 sm:py-28`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <Reveal>
-          <div className={`mb-10 flex items-baseline gap-4 border-b ${rule} pb-5 sm:mb-14`}>
-            <span aria-hidden className="font-serif text-sm tracking-[0.25em] text-[#C65D3B]">
-              {String(number).padStart(2, "0")}
-            </span>
-            <div>
-              <h2 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
-              {subtitle && <p className={`mt-1 text-sm sm:text-base ${sub}`}>{subtitle}</p>}
-            </div>
-          </div>
-        </Reveal>
+        {/* Chapter header */}
+        <div className={`mb-12 border-b ${rule} pb-6 sm:mb-16`}>
+          <motion.div
+            initial={reduced ? {} : { opacity: 0, x: -16 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            className={`mb-2 font-mono text-xs font-semibold tracking-[0.3em] ${plate}`}
+          >
+            {String(number).padStart(2, "0")}
+          </motion.div>
+          <motion.h2
+            ref={ref}
+            initial={reduced ? {} : { opacity: 0, y: 14 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
+            className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl"
+          >
+            {title}
+          </motion.h2>
+          {subtitle && (
+            <motion.p
+              initial={reduced ? {} : { opacity: 0 }}
+              animate={inView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className={`mt-2 text-sm sm:text-base ${sub}`}
+            >
+              {subtitle}
+            </motion.p>
+          )}
+        </div>
         {children}
       </div>
     </section>

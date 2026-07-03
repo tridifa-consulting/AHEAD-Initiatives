@@ -1,25 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 
 export type Chapter = { slug: string; label: string };
 
-/**
- * Sticky chapter navigator.
- * - Highlights the chapter currently in view (IntersectionObserver)
- * - A hairline "reading thread" under the bar fills with scroll progress
- * - Horizontally scrollable on small screens; keyboard friendly
- */
 export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
   const [active, setActive] = useState(chapters[0]?.slug ?? "");
-  const [progress, setProgress] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
   const barRef = useRef<HTMLElement>(null);
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+  const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
+  /* scroll-spy */
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const els: [string, HTMLElement][] = chapters
+      .map((c) => [c.slug, document.getElementById(c.slug)] as [string, HTMLElement | null])
+      .filter(([, el]) => el !== null) as [string, HTMLElement][];
+
+    const obs = new IntersectionObserver(
       (entries) => {
-        // choose the visible section closest to the top of the viewport
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
@@ -27,50 +30,47 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
       },
       { rootMargin: "-35% 0px -55% 0px" }
     );
-    chapters.forEach((c) => {
-      const el = document.getElementById(c.slug);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
+    els.forEach(([, el]) => obs.observe(el));
+    return () => obs.disconnect();
   }, [chapters]);
 
+  /* navbar shadow on scroll */
   useEffect(() => {
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const doc = document.documentElement;
-        const max = doc.scrollHeight - window.innerHeight;
-        setProgress(max > 0 ? Math.min(1, window.scrollY / max) : 0);
-      });
-    };
+    const onScroll = () => setScrolled(window.scrollY > 60);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // keep the active pill in view on small screens
+  /* auto-centre active pill on small screens */
   useEffect(() => {
     const link = barRef.current?.querySelector<HTMLAnchorElement>(`a[href="#${active}"]`);
-    link?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
-  }, [active]);
+    link?.scrollIntoView({ block: "nearest", inline: "center", behavior: reduced ? "instant" : "smooth" });
+  }, [active, reduced]);
 
   return (
-    <header className="sticky top-0 z-50 bg-[#FAF7F0]/95 backdrop-blur border-b border-[#16324F]/10">
+    <header
+      className="sticky top-0 z-50 transition-shadow duration-300"
+      style={{ backgroundColor: "rgba(250,247,240,0.97)", backdropFilter: "blur(12px)",
+               boxShadow: scrolled ? "0 1px 0 rgba(22,50,79,0.10), 0 4px 16px rgba(22,50,79,0.06)" : "none" }}
+    >
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        <a href="#top" className="flex shrink-0 items-center gap-2.5 py-3" aria-label="AHEAD Initiatives — back to top">
-          <Image src="/logo.jpg" alt="" width={34} height={34} className="rounded-full" />
-          <span className="hidden font-serif text-lg font-semibold tracking-tight text-[#16324F] sm:block">
-            AHEAD <span className="font-normal text-[#16324F]/70">Initiatives</span>
+
+        {/* Logo + wordmark */}
+        <Link href="#top" className="flex shrink-0 items-center gap-2.5 py-3" aria-label="AHEAD Initiatives — back to top">
+          <motion.div whileHover={reduced ? {} : { scale: 1.04 }} whileTap={reduced ? {} : { scale: 0.97 }}>
+            <Image src="/logo.jpg" alt="" width={32} height={32} className="rounded-full" />
+          </motion.div>
+          <span className="hidden font-serif text-base font-semibold tracking-tight text-[#16324F] sm:block">
+            AHEAD <span className="font-normal text-[#16324F]/60">Initiatives</span>
           </span>
-        </a>
+        </Link>
+
+        {/* Chapter pills */}
         <nav
           ref={barRef}
           aria-label="Chapters"
-          className="scrollbar-none -mb-px flex flex-1 items-center gap-1 overflow-x-auto py-2"
+          className="scrollbar-none -mb-px flex flex-1 items-center gap-0.5 overflow-x-auto py-2.5"
         >
           {chapters.map((c) => {
             const current = active === c.slug;
@@ -79,11 +79,11 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
                 key={c.slug}
                 href={`#${c.slug}`}
                 aria-current={current ? "true" : undefined}
-                className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C65D3B] ${
-                  current
-                    ? "bg-[#16324F] text-[#FAF7F0]"
-                    : "text-[#16324F]/75 hover:bg-[#16324F]/8 hover:text-[#16324F]"
-                }`}
+                className="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C65D3B]"
+                style={{
+                  color: current ? "#FAF7F0" : "rgba(22,50,79,0.7)",
+                  backgroundColor: current ? "#16324F" : "transparent",
+                }}
               >
                 {c.label}
               </a>
@@ -91,11 +91,12 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
           })}
         </nav>
       </div>
-      {/* reading thread */}
-      <div aria-hidden className="h-[2px] w-full bg-[#16324F]/8">
-        <div
-          className="h-full bg-gradient-to-r from-[#2D6A4F] via-[#C65D3B] to-[#E9B44C] transition-[width] duration-150 motion-reduce:transition-none"
-          style={{ width: `${progress * 100}%` }}
+
+      {/* Reading thread — Framer Motion spring-driven */}
+      <div aria-hidden className="relative h-[2.5px] w-full overflow-hidden bg-[#16324F]/6">
+        <motion.div
+          className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#2D6A4F] via-[#C65D3B] to-[#E9B44C]"
+          style={{ width: reduced ? progressWidth : progressWidth }}
         />
       </div>
     </header>

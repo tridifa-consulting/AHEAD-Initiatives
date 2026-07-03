@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import type { MediaRow } from "@/lib/types";
 import { t } from "@/lib/types";
 import CountUp from "./CountUp";
 
-/** Full-bleed opening: slow photographic cross-fade beneath the serif thesis. */
+const ease = [0.22, 1, 0.36, 1] as const;
+
 export default function Hero({
   title,
   subtitle,
@@ -19,60 +21,146 @@ export default function Hero({
   slides: MediaRow[];
 }) {
   const [index, setIndex] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  const reduced = useReducedMotion();
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (slides.length < 2) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const id = setInterval(() => setIndex((i) => (i + 1) % slides.length), 6000);
-    return () => clearInterval(id);
-  }, [slides.length]);
+    setLoaded(true);
+    if (slides.length < 2 || reduced) return;
+    intervalRef.current = setInterval(
+      () => setIndex((i) => (i + 1) % slides.length), 7000
+    );
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [slides.length, reduced]);
 
   return (
-    <section id="top" className="relative isolate min-h-[88vh] overflow-hidden bg-[#16324F]">
-      {slides.map((s, i) => (
-        <Image
-          key={s.id}
-          src={s.file_path ?? s.url ?? ""}
-          alt={i === index ? t(s.alt_text) : ""}
-          fill
-          priority={i === 0}
-          sizes="100vw"
-          className={`object-cover transition-opacity duration-[1800ms] motion-reduce:transition-none ${
-            i === index ? "kenburns-active opacity-100" : "opacity-0"
-          }`}
-        />
-      ))}
-      <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#16324F] via-[#16324F]/55 to-[#16324F]/25" />
+    <section id="top" className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-[#16324F]">
 
-      <div className="relative mx-auto flex min-h-[88vh] max-w-7xl flex-col justify-end px-4 pb-16 pt-32 sm:px-6 lg:px-8">
-        <p className="mb-4 text-xs font-medium uppercase tracking-[0.3em] text-[#E9B44C]">
+      {/* ── Photo layer: cross-fade via AnimatePresence ──────────── */}
+      <AnimatePresence initial={false}>
+        <motion.div
+          key={index}
+          className="absolute inset-0 z-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reduced ? 0 : 1.8, ease: "easeInOut" }}
+        >
+          {slides[index] && (
+            <motion.div
+              className="absolute inset-0"
+              initial={reduced ? {} : { scale: 1 }}
+              animate={reduced ? {} : { scale: 1.07 }}
+              transition={{ duration: 9, ease: "linear" }}
+            >
+              <Image
+                src={slides[index].file_path ?? slides[index].url ?? ""}
+                alt={t(slides[index].alt_text)}
+                fill priority={index === 0}
+                sizes="100vw"
+                className="object-cover"
+              />
+            </motion.div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* ── Gradient scrim ───────────────────────────────────────── */}
+      <div aria-hidden className="absolute inset-0 z-10 bg-gradient-to-t from-[#16324F] via-[#16324F]/60 to-[#16324F]/20" />
+
+      {/* ── Content ──────────────────────────────────────────────── */}
+      <div className="relative z-20 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pb-14 pt-36 sm:px-6 lg:px-8">
+
+        <motion.p
+          className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-[#E9B44C]"
+          initial={loaded && !reduced ? { opacity: 0, y: 12 } : {}}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6, ease }}
+        >
           Eastern India · since 2009
-        </p>
-        <h1 className="max-w-3xl font-serif text-4xl font-semibold leading-tight tracking-tight text-[#FAF7F0] sm:text-5xl lg:text-6xl">
-          {title}
-        </h1>
-        <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#FAF7F0]/85 sm:text-lg">{subtitle}</p>
+        </motion.p>
 
-        <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-[#FAF7F0]/20 pt-8 sm:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.label}>
-              <div className="font-serif text-3xl font-semibold text-[#FAF7F0] sm:text-4xl"><CountUp value={s.value} /></div>
-              <div className="mt-1 text-xs uppercase tracking-wider text-[#FAF7F0]/70 sm:text-sm sm:normal-case sm:tracking-normal">
+        <motion.h1
+          className="max-w-4xl font-serif text-5xl font-semibold leading-[1.08] tracking-tight text-[#FAF7F0] sm:text-6xl lg:text-7xl"
+          initial={loaded && !reduced ? { opacity: 0, y: 20 } : {}}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.75, ease }}
+        >
+          {title}
+        </motion.h1>
+
+        <motion.p
+          className="mt-6 max-w-2xl text-base leading-relaxed text-[#FAF7F0]/80 sm:text-lg"
+          initial={loaded && !reduced ? { opacity: 0, y: 16 } : {}}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.65, ease }}
+        >
+          {subtitle}
+        </motion.p>
+
+        {/* Stats band */}
+        <motion.div
+          className="mt-12 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-[#FAF7F0]/15 pt-8 sm:grid-cols-4"
+          initial={loaded && !reduced ? { opacity: 0 } : {}}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7, duration: 0.6 }}
+        >
+          {stats.map((s, i) => (
+            <motion.div
+              key={s.label}
+              initial={loaded && !reduced ? { opacity: 0, y: 10 } : {}}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.75 + i * 0.08, duration: 0.5 }}
+            >
+              <div className="font-serif text-4xl font-semibold text-[#FAF7F0] sm:text-5xl">
+                <CountUp value={s.value} />
+              </div>
+              <div className="mt-1.5 text-xs uppercase tracking-wider text-[#FAF7F0]/60">
                 {s.label}
               </div>
-            </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Scroll cue */}
+        <motion.a
+          href="#story"
+          aria-label="Begin the story"
+          className="mt-10 inline-flex w-fit items-center gap-2.5 text-xs uppercase tracking-[0.25em] text-[#FAF7F0]/60 transition-colors hover:text-[#E9B44C]"
+          initial={loaded && !reduced ? { opacity: 0 } : {}}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.1, duration: 0.5 }}
+        >
+          Begin the story
+          <motion.span
+            aria-hidden
+            animate={reduced ? {} : { y: [0, 5, 0] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            ↓
+          </motion.span>
+        </motion.a>
+      </div>
+
+      {/* Slide dots */}
+      {slides.length > 1 && (
+        <div
+          aria-label="Photograph carousel"
+          className="absolute bottom-5 right-4 z-20 flex gap-1.5 sm:right-8"
+        >
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setIndex(i)}
+              aria-label={`Slide ${i + 1}`}
+              aria-pressed={i === index}
+              className="h-1 rounded-full bg-[#FAF7F0]/40 transition-all duration-300"
+              style={{ width: i === index ? 24 : 8, backgroundColor: i === index ? "#E9B44C" : undefined }}
+            />
           ))}
         </div>
-
-        <a
-          href="#story"
-          aria-label="Scroll to begin the story"
-          className="mt-10 inline-flex w-fit items-center gap-2 text-xs uppercase tracking-[0.25em] text-[#FAF7F0]/70 transition-colors hover:text-[#E9B44C]"
-        >
-          Scroll to begin
-          <span aria-hidden className="inline-block animate-bounce motion-reduce:animate-none">↓</span>
-        </a>
-      </div>
+      )}
     </section>
   );
 }
