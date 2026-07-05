@@ -167,3 +167,19 @@ no DB steps required for deploy.
 | No secrets committed | ✓ `.env*` gitignored; service-role key referenced by name only |
 | Handover document | ✓ `docs/HANDOVER.md` (all 10 sections) |
 | Build passes | ✓ `eslint` clean · `tsc` clean · `next build` 25/25 pages |
+
+---
+
+## Precision pass addendum (screenshots review)
+Fixes applied after the client screenshot review:
+- **Publications now link to real PDFs.** All 39 Bengali publication PDFs and the English "Culture Spirituality and Development" PDF were wired from the legacy host (`/pdf/…`, URL-encoded exactly as hosted). The "In print" chip now shows only on the genuinely file-less entries (3 English titles pending files from AHEAD, 19 Nabodisha issues, 18 Other Materials — see client-needed list).
+- **Team members restored.** All 26 board/project/field members carry their verified role and email (from AHEAD's contact page), with `show_email=true`. The blank-card bug (motion opacity stuck at 0 for below-fold list items) is fixed — cards render visible by default and motion is a non-blocking enhancement.
+- **Contact now closes the page after the team.** Order within the final chapter: support text → full team (founder, board, project directors, field team) → "Reach out & collaborate" with contact details, channel links, a real mailto support CTA, and AHEAD's verified Google-Maps embed. No fake contact form.
+- **Media previews are real.** Documentaries show their own first video frame as the poster, preview on hover, and open in a modal player. YouTube cards use channel thumbnails with a click-to-load facade. The learning library opens any film in the same player.
+- **Galleries slowed down** to a calmer right-to-left drift (≈7s per photo, minimum 60s per loop), still pausing on hover/focus with manual controls.
+
+### Still needed from AHEAD (updated)
+- English publication PDFs: "Local Government in Ancient India", and one more English title without a hosted file.
+- Nabodisha journal PDFs (19 issues) — legacy `p3.html` not machine-readable; supply files or a folder.
+- Other Materials PDFs (18) from legacy `p4.html`.
+- av3/av4 (Other Languages / Misc AV) and g3/g4 (Open Learning / Misc galleries) — not reachable programmatically; supply URLs or files.
