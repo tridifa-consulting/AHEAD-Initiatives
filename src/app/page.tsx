@@ -213,17 +213,21 @@ export default async function Home() {
 
       {bySlug["contact"] && (
         <Chapter slug="contact" number={num("contact")} title={t(bySlug["contact"].title)}>
-          <div className="space-y-14">
+          <div className="space-y-16">
             {t(bySlug["contact"].body) && (
               <Reveal>
-                <Prose text={t(bySlug["contact"].body)} className="max-w-3xl text-[#1F2933]/85" />
+                <Prose text={t(bySlug["contact"].body)} className="mx-auto max-w-3xl text-center text-lg text-[#1F2933]/85" />
               </Reveal>
             )}
-            <ContactBlock
-              org={(settings.org ?? {}) as Record<string, string>}
-              channels={(settings.channels ?? {}) as Record<string, string>}
-            />
+            {/* Team first — governance and field team — then how to reach us */}
             <PeopleGrid people={people} portraits={portraits} />
+            <div className="border-t border-[#16324F]/10 pt-14">
+              <h3 className="mb-8 text-center font-serif text-2xl font-semibold text-[#16324F]">Reach out &amp; collaborate</h3>
+              <ContactBlock
+                org={(settings.org ?? {}) as Record<string, string>}
+                channels={(settings.channels ?? {}) as Record<string, string>}
+              />
+            </div>
           </div>
         </Chapter>
       )}

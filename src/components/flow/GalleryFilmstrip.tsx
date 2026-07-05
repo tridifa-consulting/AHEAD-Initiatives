@@ -99,7 +99,7 @@ export default function GalleryFilmstrip({ title, images }: { title: string; ima
         <div
           className={autoplay ? "marquee flex w-max gap-3" : "flex w-max gap-3"}
           style={autoplay ? {
-            animationDuration: `${Math.max(30, images.length * 4)}s`,
+            animationDuration: `${Math.max(60, images.length * 7)}s`,
             animationPlayState: paused ? "paused" : "running",
           } : undefined}
         >
