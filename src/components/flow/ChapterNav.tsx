@@ -98,7 +98,7 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
       />
 
       <div className="relative mx-auto flex max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        {/* Logo + wordmark */}
+        {/* Logo + Wordmark */}
         <Link
           href="#top"
           className="group flex shrink-0 items-center gap-3 py-3.5"
