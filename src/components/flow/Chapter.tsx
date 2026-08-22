@@ -24,7 +24,7 @@ export default function Chapter({
 
   const sectionTone =
     tone === "ink"
-      ? "bg-[#0B3A53] text-[#fff8ea]"
+      ? "bg-[#064E7A] text-[#fff8ea]"
       : tone === "white"
         ? "bg-[#fff8ea] text-[#102a2d]"
         : "bg-[#f5ead6] text-[#102a2d]";
@@ -39,22 +39,22 @@ export default function Chapter({
   const rule =
     tone === "ink"
       ? "border-[#fff8ea]/16"
-      : "border-[#0B3A53]/12";
+      : "border-[#075985]/12";
 
   const sub =
     tone === "ink"
-      ? "text-[#fff8ea]/68"
+      ? "text-[#fff8ea]/70"
       : "text-[#4c5f61]";
 
   const plate =
     tone === "ink"
-      ? "text-[#d8a441]"
+      ? "text-[#67E8F9]"
       : "text-[#b96543]";
 
   const titleColor =
     tone === "ink"
       ? "text-[#fff8ea]"
-      : "text-[#0B3A53]";
+      : "text-[#064E7A]";
 
   return (
     <section
@@ -68,20 +68,20 @@ export default function Chapter({
         style={{
           background:
             tone === "ink"
-              ? "radial-gradient(circle at 8% 0%, rgba(216,164,65,0.13), transparent 28rem), radial-gradient(circle at 92% 12%, rgba(185,101,67,0.10), transparent 30rem), linear-gradient(135deg, #0B3A53 0%, #0E5066 58%, #082E42 100%)"
-              : "radial-gradient(circle at 8% 0%, rgba(216,164,65,0.13), transparent 28rem), radial-gradient(circle at 94% 10%, rgba(28,124,137,0.09), transparent 30rem)",
+              ? "radial-gradient(circle at 8% 0%, rgba(103,232,249,0.12), transparent 28rem), radial-gradient(circle at 92% 12%, rgba(185,101,67,0.10), transparent 30rem), linear-gradient(135deg, #064E7A 0%, #075985 52%, #083344 100%)"
+              : "radial-gradient(circle at 8% 0%, rgba(216,164,65,0.12), transparent 28rem), radial-gradient(circle at 94% 10%, rgba(8,145,178,0.11), transparent 30rem)",
         }}
       />
 
       {/* Quiet paper grid */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.26]"
+        className="pointer-events-none absolute inset-0 opacity-[0.24]"
         style={{
           backgroundImage:
             tone === "ink"
               ? "linear-gradient(rgba(255,248,234,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,248,234,0.035) 1px, transparent 1px)"
-              : "linear-gradient(rgba(185,101,67,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(11,58,83,0.032) 1px, transparent 1px)",
+              : "linear-gradient(rgba(185,101,67,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(8,145,178,0.035) 1px, transparent 1px)",
           backgroundSize: "42px 42px",
         }}
       />
@@ -100,7 +100,7 @@ export default function Chapter({
               aria-hidden
               className={
                 tone === "ink"
-                  ? "h-px w-10 bg-[#d8a441]/58"
+                  ? "h-px w-10 bg-[#67E8F9]/55"
                   : "h-px w-10 bg-[#b96543]/52"
               }
             />
