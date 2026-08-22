@@ -1,12 +1,34 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #1a1a2e;
-  --primary: #1E3F66;
-  --secondary: #2d6a4f;
-  --accent: #e07a5f;
-  --muted: #f9fafb;
+  /* Core site palette — classical Indian institutional archive */
+  --background: #f7efe4;
+  --foreground: #122033;
+
+  --primary: #14314d;
+  --secondary: #2f5f46;
+  --accent: #b85c38;
+  --muted: #f3eadc;
+
+  /* Extended heritage palette */
+  --ink: #102a43;
+  --ink-soft: #1d3f5f;
+  --paper: #f7efe4;
+  --paper-warm: #efe2cf;
+  --paper-light: #fffaf1;
+  --terracotta: #b85c38;
+  --terracotta-soft: #d9825b;
+  --marigold: #dfaf45;
+  --paddy: #2f5f46;
+  --leaf: #426f53;
+  --clay: #c9a27c;
+
+  /* Borders, shadows and surfaces */
+  --border-soft: rgba(20, 49, 77, 0.14);
+  --border-warm: rgba(184, 92, 56, 0.22);
+  --shadow-soft: 0 18px 50px rgba(16, 42, 67, 0.10);
+  --shadow-card: 0 10px 30px rgba(16, 42, 67, 0.08);
+  --radius-card: 1.15rem;
 }
 
 @theme inline {
@@ -16,48 +38,136 @@
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
   --color-muted: var(--muted);
+
   --font-sans: var(--font-inter);
   --font-serif: var(--font-serif);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
+/* Base document rhythm */
+* {
+  box-sizing: border-box;
 }
 
-/* Smooth scrolling */
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 76px;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(223, 175, 69, 0.08), transparent 28rem),
+    radial-gradient(circle at 95% 12%, rgba(47, 95, 70, 0.08), transparent 26rem),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-feature-settings: "kern";
+}
+
+/* Subtle paper texture utility.
+   Apply only to public-facing sections where needed. */
+.heritage-paper {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(rgba(184, 92, 56, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 49, 77, 0.025) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+/* Warm archival section surface */
+.heritage-section {
+  background:
+    radial-gradient(circle at top left, rgba(223, 175, 69, 0.10), transparent 22rem),
+    linear-gradient(180deg, var(--paper-light), var(--paper));
+}
+
+/* Institutional dark surface */
+.heritage-ink {
+  background:
+    radial-gradient(circle at top left, rgba(223, 175, 69, 0.10), transparent 24rem),
+    linear-gradient(135deg, #102a43, #173d5b);
+  color: #fffaf1;
+}
+
+/* Reusable card treatment */
+.heritage-card {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 241, 0.96), rgba(247, 239, 228, 0.96));
+  box-shadow: var(--shadow-card);
+}
+
+/* Archival labels used for chapter numbers, small headings and tags */
+.heritage-label {
+  color: var(--terracotta);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+}
+
+/* Fine manuscript-style divider */
+.heritage-rule {
+  height: 1px;
+  border: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(184, 92, 56, 0.55),
+      rgba(223, 175, 69, 0.32),
+      rgba(20, 49, 77, 0.10),
+      transparent
+    );
+}
+
+/* Warm link/CTA treatment */
+.heritage-link {
+  color: var(--terracotta);
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.heritage-link:hover {
+  color: var(--ink);
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #efe2cf;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #94a3b8;
-  border-radius: 4px;
+  background: rgba(20, 49, 77, 0.35);
+  border-radius: 999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: rgba(20, 49, 77, 0.58);
 }
 
 /* Selection color */
 ::selection {
-  background-color: rgba(30, 63, 102, 0.15);
-  color: #1E3F66;
+  background: rgba(223, 175, 69, 0.45);
+  color: var(--ink);
 }
 
 /* Focus visible styles */
 *:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 
 /* Animations */
@@ -66,6 +176,7 @@ html {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -73,8 +184,13 @@ html {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fade-in-up {
@@ -86,61 +202,72 @@ html {
 }
 
 /* Stagger delays */
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
+.delay-100 {
+  animation-delay: 100ms;
+}
 
-/* utility: hide horizontal scrollbars on the chapter nav */
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+/* Utility: hide horizontal scrollbars on the chapter nav */
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
 
-/* documentary hero: slow Ken Burns drift on the active slide */
+/* Documentary hero: slow Ken Burns drift on the active slide */
 @keyframes kenburns {
-  from { transform: scale(1) translateY(0); }
-  to { transform: scale(1.08) translateY(-1.5%); }
+  from {
+    transform: scale(1) translateY(0);
+  }
+
+  to {
+    transform: scale(1.08) translateY(-1.5%);
+  }
 }
+
 .kenburns-active {
   animation: kenburns 9s ease-out forwards;
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .kenburns-active { animation: none; }
-}
-::selection {
-  background: #e9b44c;
-  color: #16324f;
-}
-
-
-/* ── Scroll model ─────────────────────────────────────────────
-   scroll-padding-top makes every #anchor land below the sticky
-   nav; scroll-behavior:smooth applies to anchor clicks only
-   (never to passive scrolling), and is removed entirely for
-   people who prefer reduced motion. */
-html {
-  scroll-padding-top: 76px;
-}
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
+  .kenburns-active {
+    animation: none;
   }
 }
 
 /* Field gallery marquee: right-to-left drift, seamless via doubled track */
 @keyframes marquee-rtl {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
 }
+
 .marquee {
   animation-name: marquee-rtl;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .marquee { animation: none; }
+  .marquee {
+    animation: none;
+  }
 }
