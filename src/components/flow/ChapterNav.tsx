@@ -29,6 +29,7 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
           const visible = entries
             .filter((e) => e.isIntersecting)
             .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
           if (visible[0]) setActive(visible[0].target.id);
         });
       },
@@ -47,6 +48,7 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
     onScroll();
+
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -55,6 +57,7 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
   useEffect(() => {
     const bar = barRef.current;
     const link = bar?.querySelector<HTMLAnchorElement>(`a[href="#${active}"]`);
+
     if (!bar || !link) return;
 
     const targetLeft = link.offsetLeft - bar.clientWidth / 2 + link.clientWidth / 2;
@@ -67,33 +70,33 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
 
   return (
     <header
-      className="sticky top-0 z-50 overflow-hidden border-b border-[#0f3f3e]/10 transition-shadow duration-300"
+      className="sticky top-0 z-50 overflow-hidden border-b border-[#064E7A]/10 transition-shadow duration-300"
       style={{
-        backgroundColor: "rgba(255, 248, 234, 0.94)",
+        backgroundColor: "rgba(255, 248, 234, 0.95)",
         backdropFilter: "blur(18px)",
         boxShadow: scrolled
-          ? "0 1px 0 rgba(15,63,62,0.08), 0 16px 42px rgba(15,63,62,0.08)"
-          : "0 1px 0 rgba(15,63,62,0.04)",
+          ? "0 1px 0 rgba(6,78,122,0.10), 0 16px 42px rgba(6,78,122,0.10)"
+          : "0 1px 0 rgba(6,78,122,0.05)",
       }}
     >
       {/* Quiet beige paper texture */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.38]"
+        className="pointer-events-none absolute inset-0 opacity-[0.36]"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(185,101,67,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,63,62,0.035) 1px, transparent 1px)",
+            "linear-gradient(rgba(185,101,67,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(8,145,178,0.04) 1px, transparent 1px)",
           backgroundSize: "34px 34px",
         }}
       />
 
-      {/* Fine teal-beige manuscript rule */}
+      {/* Fine aqua-blue manuscript rule */}
       <div
         aria-hidden
         className="absolute left-0 right-0 top-0 h-[2px]"
         style={{
           background:
-            "linear-gradient(90deg, rgba(15,63,62,0.85), rgba(31,111,104,0.72), rgba(216,164,65,0.62), rgba(185,101,67,0.58))",
+            "linear-gradient(90deg, #064E7A 0%, #0891B2 42%, #67E8F9 64%, #D8A441 82%, #B96543 100%)",
         }}
       />
 
@@ -109,8 +112,8 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
             whileTap={reduced ? {} : { scale: 0.97 }}
             className="relative"
           >
-            <div className="absolute -inset-1 rounded-full border border-[#b96543]/25 bg-[#fff8ea]" />
-            <div className="relative rounded-full border border-[#0f3f3e]/12 bg-[#fff8ea] p-1 shadow-sm">
+            <div className="absolute -inset-1 rounded-full border border-[#0891B2]/22 bg-[#fff8ea]" />
+            <div className="relative rounded-full border border-[#064E7A]/14 bg-[#fff8ea] p-1 shadow-sm">
               <Image
                 src="/logo.jpg"
                 alt=""
@@ -123,10 +126,10 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
           </motion.div>
 
           <span className="hidden sm:block">
-            <span className="block font-serif text-[1.1rem] font-bold leading-none tracking-tight text-[#0f3f3e]">
+            <span className="block font-serif text-[1.15rem] font-bold leading-none tracking-tight text-[#064E7A]">
               AHEAD
             </span>
-            <span className="mt-0.5 block text-[0.64rem] font-bold uppercase tracking-[0.30em] text-[#b96543]">
+            <span className="mt-0.5 block text-[0.64rem] font-extrabold uppercase tracking-[0.30em] text-[#B96543]">
               Initiatives
             </span>
           </span>
@@ -135,7 +138,7 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
         {/* Small vertical divider */}
         <div
           aria-hidden
-          className="hidden h-8 w-px bg-gradient-to-b from-transparent via-[#0f3f3e]/18 to-transparent sm:block"
+          className="hidden h-8 w-px bg-gradient-to-b from-transparent via-[#064E7A]/18 to-transparent sm:block"
         />
 
         {/* Chapter pills */}
@@ -152,16 +155,16 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
                 key={c.slug}
                 href={`#${c.slug}`}
                 aria-current={current ? "true" : undefined}
-                className="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b96543]"
+                className="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2]"
                 style={{
-                  color: current ? "#fff8ea" : "rgba(16, 42, 45, 0.74)",
-                  backgroundColor: current ? "#0f3f3e" : "rgba(255, 248, 234, 0.42)",
+                  color: current ? "#fff8ea" : "rgba(16, 42, 45, 0.76)",
+                  backgroundColor: current ? "#064E7A" : "rgba(255, 248, 234, 0.48)",
                   border: current
-                    ? "1px solid rgba(15,63,62,0.92)"
-                    : "1px solid rgba(15,63,62,0.10)",
+                    ? "1px solid rgba(6,78,122,0.92)"
+                    : "1px solid rgba(6,78,122,0.12)",
                   boxShadow: current
-                    ? "0 8px 20px rgba(15,63,62,0.20)"
-                    : "0 1px 0 rgba(255,255,255,0.55)",
+                    ? "0 8px 20px rgba(6,78,122,0.22)"
+                    : "0 1px 0 rgba(255,255,255,0.60)",
                 }}
               >
                 {current && (
@@ -170,7 +173,7 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
                     className="absolute inset-0 -z-10 rounded-full"
                     style={{
                       background:
-                        "linear-gradient(135deg, rgba(15,63,62,1), rgba(18,60,70,1))",
+                        "linear-gradient(135deg, #064E7A 0%, #075985 52%, #0891B2 100%)",
                     }}
                     transition={{
                       type: "spring",
@@ -188,13 +191,13 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
       </div>
 
       {/* Reading thread */}
-      <div aria-hidden className="relative h-[3px] w-full overflow-hidden bg-[#0f3f3e]/8">
+      <div aria-hidden className="relative h-[3px] w-full overflow-hidden bg-[#064E7A]/8">
         <motion.div
           className="absolute inset-y-0 left-0"
           style={{
             width: progressWidth,
             background:
-              "linear-gradient(90deg, #0f3f3e 0%, #1f6f68 38%, #d8a441 68%, #b96543 100%)",
+              "linear-gradient(90deg, #064E7A 0%, #0891B2 42%, #67E8F9 62%, #D8A441 82%, #B96543 100%)",
           }}
         />
       </div>
