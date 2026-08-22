@@ -24,10 +24,10 @@ export default function Chapter({
 
   const sectionTone =
     tone === "ink"
-      ? "bg-[#0f3f3e] text-[#fff8ea]"
+      ? "bg-[#0B3A53] text-[#fff8ea]"
       : tone === "white"
         ? "bg-[#fff8ea] text-[#102a2d]"
-        : "bg-[#f4e8d4] text-[#102a2d]";
+        : "bg-[#f5ead6] text-[#102a2d]";
 
   const overlayTone =
     tone === "ink"
@@ -39,7 +39,7 @@ export default function Chapter({
   const rule =
     tone === "ink"
       ? "border-[#fff8ea]/16"
-      : "border-[#0f3f3e]/12";
+      : "border-[#0B3A53]/12";
 
   const sub =
     tone === "ink"
@@ -54,7 +54,7 @@ export default function Chapter({
   const titleColor =
     tone === "ink"
       ? "text-[#fff8ea]"
-      : "text-[#0f3f3e]";
+      : "text-[#0B3A53]";
 
   return (
     <section
@@ -68,8 +68,8 @@ export default function Chapter({
         style={{
           background:
             tone === "ink"
-              ? "radial-gradient(circle at 8% 0%, rgba(216,164,65,0.13), transparent 28rem), radial-gradient(circle at 92% 12%, rgba(185,101,67,0.10), transparent 30rem), linear-gradient(135deg, #0f3f3e 0%, #123c46 58%, #0b2f35 100%)"
-              : "radial-gradient(circle at 8% 0%, rgba(216,164,65,0.13), transparent 28rem), radial-gradient(circle at 94% 10%, rgba(31,111,104,0.08), transparent 30rem)",
+              ? "radial-gradient(circle at 8% 0%, rgba(216,164,65,0.13), transparent 28rem), radial-gradient(circle at 92% 12%, rgba(185,101,67,0.10), transparent 30rem), linear-gradient(135deg, #0B3A53 0%, #0E5066 58%, #082E42 100%)"
+              : "radial-gradient(circle at 8% 0%, rgba(216,164,65,0.13), transparent 28rem), radial-gradient(circle at 94% 10%, rgba(28,124,137,0.09), transparent 30rem)",
         }}
       />
 
@@ -81,7 +81,7 @@ export default function Chapter({
           backgroundImage:
             tone === "ink"
               ? "linear-gradient(rgba(255,248,234,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,248,234,0.035) 1px, transparent 1px)"
-              : "linear-gradient(rgba(185,101,67,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(15,63,62,0.03) 1px, transparent 1px)",
+              : "linear-gradient(rgba(185,101,67,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(11,58,83,0.032) 1px, transparent 1px)",
           backgroundSize: "42px 42px",
         }}
       />
