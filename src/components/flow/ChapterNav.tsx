@@ -67,38 +67,38 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
 
   return (
     <header
-      className="sticky top-0 z-50 overflow-hidden border-b border-[#14314d]/10 transition-shadow duration-300"
+      className="sticky top-0 z-50 overflow-hidden border-b border-[#0f3f3e]/10 transition-shadow duration-300"
       style={{
-        backgroundColor: "rgba(255, 250, 241, 0.94)",
+        backgroundColor: "rgba(255, 248, 234, 0.94)",
         backdropFilter: "blur(18px)",
         boxShadow: scrolled
-          ? "0 1px 0 rgba(20,49,77,0.08), 0 16px 42px rgba(16,42,67,0.08)"
-          : "0 1px 0 rgba(20,49,77,0.04)",
+          ? "0 1px 0 rgba(15,63,62,0.08), 0 16px 42px rgba(15,63,62,0.08)"
+          : "0 1px 0 rgba(15,63,62,0.04)",
       }}
     >
-      {/* Quiet archival paper texture */}
+      {/* Quiet beige paper texture */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        className="pointer-events-none absolute inset-0 opacity-[0.38]"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(184,92,56,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(20,49,77,0.035) 1px, transparent 1px)",
+            "linear-gradient(rgba(185,101,67,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,63,62,0.035) 1px, transparent 1px)",
           backgroundSize: "34px 34px",
         }}
       />
 
-      {/* Fine terracotta manuscript rule */}
+      {/* Fine teal-beige manuscript rule */}
       <div
         aria-hidden
         className="absolute left-0 right-0 top-0 h-[2px]"
         style={{
           background:
-            "linear-gradient(90deg, rgba(184,92,56,0.85), rgba(223,175,69,0.65), rgba(47,95,70,0.55), rgba(20,49,77,0.50))",
+            "linear-gradient(90deg, rgba(15,63,62,0.85), rgba(31,111,104,0.72), rgba(216,164,65,0.62), rgba(185,101,67,0.58))",
         }}
       />
 
       <div className="relative mx-auto flex max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        {/* Logo + Wordmark */}
+        {/* Logo + wordmark */}
         <Link
           href="#top"
           className="group flex shrink-0 items-center gap-3 py-3.5"
@@ -109,8 +109,8 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
             whileTap={reduced ? {} : { scale: 0.97 }}
             className="relative"
           >
-            <div className="absolute -inset-1 rounded-full border border-[#b85c38]/25 bg-[#fffaf1]" />
-            <div className="relative rounded-full border border-[#14314d]/10 bg-[#fffaf1] p-1 shadow-sm">
+            <div className="absolute -inset-1 rounded-full border border-[#b96543]/25 bg-[#fff8ea]" />
+            <div className="relative rounded-full border border-[#0f3f3e]/12 bg-[#fff8ea] p-1 shadow-sm">
               <Image
                 src="/logo.jpg"
                 alt=""
@@ -123,10 +123,10 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
           </motion.div>
 
           <span className="hidden sm:block">
-            <span className="block font-serif text-[1.05rem] font-semibold leading-none tracking-tight text-[#14314d]">
+            <span className="block font-serif text-[1.1rem] font-bold leading-none tracking-tight text-[#0f3f3e]">
               AHEAD
             </span>
-            <span className="mt-0.5 block text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-[#b85c38]">
+            <span className="mt-0.5 block text-[0.64rem] font-bold uppercase tracking-[0.30em] text-[#b96543]">
               Initiatives
             </span>
           </span>
@@ -135,7 +135,7 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
         {/* Small vertical divider */}
         <div
           aria-hidden
-          className="hidden h-8 w-px bg-gradient-to-b from-transparent via-[#14314d]/18 to-transparent sm:block"
+          className="hidden h-8 w-px bg-gradient-to-b from-transparent via-[#0f3f3e]/18 to-transparent sm:block"
         />
 
         {/* Chapter pills */}
@@ -152,15 +152,15 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
                 key={c.slug}
                 href={`#${c.slug}`}
                 aria-current={current ? "true" : undefined}
-                className="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b85c38]"
+                className="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b96543]"
                 style={{
-                  color: current ? "#fffaf1" : "rgba(20, 49, 77, 0.72)",
-                  backgroundColor: current ? "#14314d" : "rgba(255, 250, 241, 0.34)",
+                  color: current ? "#fff8ea" : "rgba(16, 42, 45, 0.74)",
+                  backgroundColor: current ? "#0f3f3e" : "rgba(255, 248, 234, 0.42)",
                   border: current
-                    ? "1px solid rgba(20,49,77,0.92)"
-                    : "1px solid rgba(20,49,77,0.08)",
+                    ? "1px solid rgba(15,63,62,0.92)"
+                    : "1px solid rgba(15,63,62,0.10)",
                   boxShadow: current
-                    ? "0 8px 20px rgba(20,49,77,0.18)"
+                    ? "0 8px 20px rgba(15,63,62,0.20)"
                     : "0 1px 0 rgba(255,255,255,0.55)",
                 }}
               >
@@ -170,7 +170,7 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
                     className="absolute inset-0 -z-10 rounded-full"
                     style={{
                       background:
-                        "linear-gradient(135deg, rgba(20,49,77,1), rgba(29,63,95,1))",
+                        "linear-gradient(135deg, rgba(15,63,62,1), rgba(18,60,70,1))",
                     }}
                     transition={{
                       type: "spring",
@@ -188,13 +188,13 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
       </div>
 
       {/* Reading thread */}
-      <div aria-hidden className="relative h-[3px] w-full overflow-hidden bg-[#14314d]/8">
+      <div aria-hidden className="relative h-[3px] w-full overflow-hidden bg-[#0f3f3e]/8">
         <motion.div
           className="absolute inset-y-0 left-0"
           style={{
             width: progressWidth,
             background:
-              "linear-gradient(90deg, #2f5f46 0%, #b85c38 45%, #dfaf45 72%, #14314d 100%)",
+              "linear-gradient(90deg, #0f3f3e 0%, #1f6f68 38%, #d8a441 68%, #b96543 100%)",
           }}
         />
       </div>
