@@ -34,8 +34,13 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
       },
       { rootMargin: "-25% 0px -60% 0px" }
     );
+
     els.forEach(([, el]) => obs.observe(el));
-    return () => { obs.disconnect(); cancelAnimationFrame(raf); };
+
+    return () => {
+      obs.disconnect();
+      cancelAnimationFrame(raf);
+    };
   }, [chapters]);
 
   /* navbar shadow on scroll */
@@ -46,66 +51,151 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* Auto-centre the active pill — horizontal ONLY, scoped to the nav strip.
-     (scrollIntoView could nudge the page vertically on every scroll-spy
-     change, which is exactly the "page jumps while scrolling" bug.) */
+  /* Auto-centre the active pill — horizontal ONLY, scoped to the nav strip. */
   useEffect(() => {
     const bar = barRef.current;
     const link = bar?.querySelector<HTMLAnchorElement>(`a[href="#${active}"]`);
     if (!bar || !link) return;
+
     const targetLeft = link.offsetLeft - bar.clientWidth / 2 + link.clientWidth / 2;
-    bar.scrollTo({ left: Math.max(0, targetLeft), behavior: reduced ? "auto" : "smooth" });
+
+    bar.scrollTo({
+      left: Math.max(0, targetLeft),
+      behavior: reduced ? "auto" : "smooth",
+    });
   }, [active, reduced]);
 
   return (
     <header
-      className="sticky top-0 z-50 transition-shadow duration-300"
-      style={{ backgroundColor: "rgba(250,247,240,0.97)", backdropFilter: "blur(12px)",
-               boxShadow: scrolled ? "0 1px 0 rgba(22,50,79,0.10), 0 4px 16px rgba(22,50,79,0.06)" : "none" }}
+      className="sticky top-0 z-50 overflow-hidden border-b border-[#14314d]/10 transition-shadow duration-300"
+      style={{
+        backgroundColor: "rgba(255, 250, 241, 0.94)",
+        backdropFilter: "blur(18px)",
+        boxShadow: scrolled
+          ? "0 1px 0 rgba(20,49,77,0.08), 0 16px 42px rgba(16,42,67,0.08)"
+          : "0 1px 0 rgba(20,49,77,0.04)",
+      }}
     >
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+      {/* Quiet archival paper texture */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(184,92,56,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(20,49,77,0.035) 1px, transparent 1px)",
+          backgroundSize: "34px 34px",
+        }}
+      />
 
+      {/* Fine terracotta manuscript rule */}
+      <div
+        aria-hidden
+        className="absolute left-0 right-0 top-0 h-[2px]"
+        style={{
+          background:
+            "linear-gradient(90deg, rgba(184,92,56,0.85), rgba(223,175,69,0.65), rgba(47,95,70,0.55), rgba(20,49,77,0.50))",
+        }}
+      />
+
+      <div className="relative mx-auto flex max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
         {/* Logo + wordmark */}
-        <Link href="#top" className="flex shrink-0 items-center gap-2.5 py-3" aria-label="AHEAD Initiatives — back to top">
-          <motion.div whileHover={reduced ? {} : { scale: 1.04 }} whileTap={reduced ? {} : { scale: 0.97 }}>
-            <Image src="/logo.jpg" alt="" width={32} height={32} className="rounded-full" />
+        <Link
+          href="#top"
+          className="group flex shrink-0 items-center gap-3 py-3.5"
+          aria-label="AHEAD Initiatives — back to top"
+        >
+          <motion.div
+            whileHover={reduced ? {} : { scale: 1.04 }}
+            whileTap={reduced ? {} : { scale: 0.97 }}
+            className="relative"
+          >
+            <div className="absolute -inset-1 rounded-full border border-[#b85c38]/25 bg-[#fffaf1]" />
+            <div className="relative rounded-full border border-[#14314d]/10 bg-[#fffaf1] p-1 shadow-sm">
+              <Image
+                src="/logo.jpg"
+                alt=""
+                width={34}
+                height={34}
+                className="rounded-full"
+                priority
+              />
+            </div>
           </motion.div>
-          <span className="hidden font-serif text-base font-semibold tracking-tight text-[#16324F] sm:block">
-            AHEAD <span className="font-normal text-[#16324F]/60">Initiatives</span>
+
+          <span className="hidden sm:block">
+            <span className="block font-serif text-[1.05rem] font-semibold leading-none tracking-tight text-[#14314d]">
+              AHEAD
+            </span>
+            <span className="mt-0.5 block text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-[#b85c38]">
+              Initiatives
+            </span>
           </span>
         </Link>
+
+        {/* Small vertical divider */}
+        <div
+          aria-hidden
+          className="hidden h-8 w-px bg-gradient-to-b from-transparent via-[#14314d]/18 to-transparent sm:block"
+        />
 
         {/* Chapter pills */}
         <nav
           ref={barRef}
           aria-label="Chapters"
-          className="scrollbar-none -mb-px flex flex-1 items-center gap-0.5 overflow-x-auto py-2.5"
+          className="scrollbar-none -mb-px flex flex-1 items-center gap-1 overflow-x-auto py-3"
         >
           {chapters.map((c) => {
             const current = active === c.slug;
+
             return (
               <a
                 key={c.slug}
                 href={`#${c.slug}`}
                 aria-current={current ? "true" : undefined}
-                className="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C65D3B]"
+                className="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b85c38]"
                 style={{
-                  color: current ? "#FAF7F0" : "rgba(22,50,79,0.7)",
-                  backgroundColor: current ? "#16324F" : "transparent",
+                  color: current ? "#fffaf1" : "rgba(20, 49, 77, 0.72)",
+                  backgroundColor: current ? "#14314d" : "rgba(255, 250, 241, 0.34)",
+                  border: current
+                    ? "1px solid rgba(20,49,77,0.92)"
+                    : "1px solid rgba(20,49,77,0.08)",
+                  boxShadow: current
+                    ? "0 8px 20px rgba(20,49,77,0.18)"
+                    : "0 1px 0 rgba(255,255,255,0.55)",
                 }}
               >
-                {c.label}
+                {current && (
+                  <motion.span
+                    layoutId="chapter-pill"
+                    className="absolute inset-0 -z-10 rounded-full"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, rgba(20,49,77,1), rgba(29,63,95,1))",
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 420,
+                      damping: 34,
+                    }}
+                  />
+                )}
+
+                <span className="relative z-10">{c.label}</span>
               </a>
             );
           })}
         </nav>
       </div>
 
-      {/* Reading thread — Framer Motion spring-driven */}
-      <div aria-hidden className="relative h-[2.5px] w-full overflow-hidden bg-[#16324F]/6">
+      {/* Reading thread */}
+      <div aria-hidden className="relative h-[3px] w-full overflow-hidden bg-[#14314d]/8">
         <motion.div
-          className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#2D6A4F] via-[#C65D3B] to-[#E9B44C]"
-          style={{ width: reduced ? progressWidth : progressWidth }}
+          className="absolute inset-y-0 left-0"
+          style={{
+            width: progressWidth,
+            background:
+              "linear-gradient(90deg, #2f5f46 0%, #b85c38 45%, #dfaf45 72%, #14314d 100%)",
+          }}
         />
       </div>
     </header>
