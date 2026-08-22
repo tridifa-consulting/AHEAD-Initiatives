@@ -1,39 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  /* Core AHEAD palette — teal, beige and Indian archival warmth */
-  --background: #f4e8d4;
+  /* Core AHEAD palette — blue-teal, beige and Indian archival warmth */
+  --background: #f5ead6;
   --foreground: #102a2d;
 
-  --primary: #0f3f3e;
-  --secondary: #1f6f68;
+  --primary: #0b3a53;
+  --secondary: #1c7c89;
   --accent: #b96543;
   --muted: #fff8ea;
 
-  /* Extended palette */
-  --teal-deep: #0f3f3e;
-  --teal-ink: #123c46;
-  --teal-soft: #1f6f68;
-  --teal-muted: #4d8b82;
+  /* Extended blue-teal palette */
+  --teal-deep: #0b3a53;
+  --teal-ink: #0e5066;
+  --teal-soft: #1c7c89;
+  --teal-muted: #5e9ea7;
+  --teal-darkest: #082e42;
 
-  --paper: #f4e8d4;
+  /* Paper / beige palette */
+  --paper: #f5ead6;
   --paper-light: #fff8ea;
   --paper-soft: #f8eedc;
   --beige-clay: #e8d6b8;
   --sand-border: #d8c29f;
 
+  /* Indian warmth accents */
   --terracotta: #b96543;
   --terracotta-soft: #d38763;
   --marigold: #d8a441;
 
+  /* Text */
   --text-main: #102a2d;
   --text-muted: #4c5f61;
 
   /* Borders, shadows and surfaces */
-  --border-soft: rgba(15, 63, 62, 0.14);
+  --border-soft: rgba(11, 58, 83, 0.14);
   --border-warm: rgba(185, 101, 67, 0.22);
-  --shadow-soft: 0 18px 50px rgba(15, 63, 62, 0.10);
-  --shadow-card: 0 12px 34px rgba(15, 63, 62, 0.08);
+  --shadow-soft: 0 18px 50px rgba(11, 58, 83, 0.10);
+  --shadow-card: 0 12px 34px rgba(11, 58, 83, 0.08);
   --radius-card: 1.2rem;
 }
 
@@ -71,8 +75,8 @@ body {
   min-height: 100vh;
   background:
     radial-gradient(circle at 8% 0%, rgba(216, 164, 65, 0.10), transparent 28rem),
-    radial-gradient(circle at 96% 10%, rgba(31, 111, 104, 0.10), transparent 30rem),
-    linear-gradient(180deg, #fff8ea 0%, #f4e8d4 46%, #f8eedc 100%);
+    radial-gradient(circle at 96% 10%, rgba(28, 124, 137, 0.12), transparent 30rem),
+    linear-gradient(180deg, #fff8ea 0%, #f5ead6 46%, #f8eedc 100%);
   color: var(--foreground);
   font-family: var(--font-inter), "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16.5px;
@@ -101,7 +105,7 @@ h4,
   background-color: var(--paper);
   background-image:
     linear-gradient(rgba(185, 101, 67, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 63, 62, 0.03) 1px, transparent 1px);
+    linear-gradient(90deg, rgba(11, 58, 83, 0.03) 1px, transparent 1px);
   background-size: 42px 42px;
 }
 
@@ -109,15 +113,15 @@ h4,
 .heritage-section {
   background:
     radial-gradient(circle at top left, rgba(216, 164, 65, 0.12), transparent 24rem),
-    radial-gradient(circle at top right, rgba(31, 111, 104, 0.08), transparent 26rem),
+    radial-gradient(circle at top right, rgba(28, 124, 137, 0.08), transparent 26rem),
     linear-gradient(180deg, var(--paper-light), var(--paper));
 }
 
-/* Institutional dark teal surface */
+/* Institutional dark blue-teal surface */
 .heritage-ink {
   background:
     radial-gradient(circle at top left, rgba(216, 164, 65, 0.12), transparent 24rem),
-    linear-gradient(135deg, #0f3f3e, #123c46 52%, #0b2f35);
+    linear-gradient(135deg, #0b3a53, #0e5066 52%, #082e42);
   color: #fff8ea;
 }
 
@@ -126,7 +130,7 @@ h4,
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-card);
   background:
-    linear-gradient(180deg, rgba(255, 248, 234, 0.96), rgba(244, 232, 212, 0.92));
+    linear-gradient(180deg, rgba(255, 248, 234, 0.96), rgba(245, 234, 214, 0.92));
   box-shadow: var(--shadow-card);
 }
 
@@ -148,7 +152,7 @@ h4,
       90deg,
       rgba(185, 101, 67, 0.55),
       rgba(216, 164, 65, 0.34),
-      rgba(31, 111, 104, 0.16),
+      rgba(28, 124, 137, 0.18),
       transparent
     );
 }
@@ -175,12 +179,12 @@ h4,
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(15, 63, 62, 0.38);
+  background: rgba(11, 58, 83, 0.40);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 63, 62, 0.62);
+  background: rgba(11, 58, 83, 0.65);
 }
 
 /* Selection color */
