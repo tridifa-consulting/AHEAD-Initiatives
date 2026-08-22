@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
-import { Inter, Source_Serif_4 } from "next/font/google";
+import { Inter, Libre_Baskerville } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
-const serif = Source_Serif_4({ variable: "--font-serif", subsets: ["latin"], display: "swap" });
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const serif = Libre_Baskerville({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.aheadinitiatives.in";
 
