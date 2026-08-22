@@ -26,6 +26,7 @@ function safeStats(stats: { value?: unknown; label?: unknown }[] | undefined) {
       typeof s?.label === "string" &&
       s.label.length > 0
   );
+
   return ok.length >= 3 ? ok : VERIFIED_STATS;
 }
 
@@ -66,9 +67,9 @@ export default function Hero({
   return (
     <section
       id="top"
-      className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-[#0f3f3e]"
+      className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-[#071d2a]"
     >
-      {/* Photo layer: cross-fade via AnimatePresence */}
+      {/* Background slideshow — intentionally no colour tint */}
       <AnimatePresence initial={false}>
         <motion.div
           key={index}
@@ -76,14 +77,20 @@ export default function Hero({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: reduced ? 0 : 1.8, ease: "easeInOut" }}
+          transition={{
+            duration: reduced ? 0 : 1.7,
+            ease: "easeInOut",
+          }}
         >
           {slides[index] && (
             <motion.div
               className="absolute inset-0"
               initial={reduced ? {} : { scale: 1 }}
-              animate={reduced ? {} : { scale: 1.07 }}
-              transition={{ duration: 9, ease: "linear" }}
+              animate={reduced ? {} : { scale: 1.045 }}
+              transition={{
+                duration: 9,
+                ease: "linear",
+              }}
             >
               <Image
                 src={slides[index].file_path ?? slides[index].url ?? ""}
@@ -98,94 +105,123 @@ export default function Hero({
         </motion.div>
       </AnimatePresence>
 
-      {/* Teal archival colour grading */}
-      <div
-        aria-hidden
-        className="absolute inset-0 z-10 bg-gradient-to-t from-[#06282c] via-[#0f3f3e]/78 to-[#123c46]/28"
-      />
+      {/* Main content */}
+      <div className="relative z-20 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pb-10 pt-32 sm:px-6 sm:pb-12 lg:px-8 lg:pb-14">
 
-      <div
-        aria-hidden
-        className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_18%_20%,rgba(216,164,65,0.18),transparent_28rem),radial-gradient(circle_at_84%_22%,rgba(185,101,67,0.13),transparent_30rem),linear-gradient(90deg,rgba(6,40,44,0.76),rgba(6,40,44,0.24)_55%,rgba(6,40,44,0.68))]"
-      />
+        {/* Hero copy */}
+        <div className="relative max-w-5xl">
+          {/*
+            Local readability support only.
+            This does NOT tint the full photograph.
+          */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-x-6 -inset-y-8 -z-10 bg-[radial-gradient(ellipse_at_left,rgba(0,0,0,0.48),rgba(0,0,0,0.20)_48%,transparent_74%)] blur-md"
+          />
 
-      {/* Subtle handmade paper / film grain feel */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-10 opacity-[0.18]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,248,234,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(255,248,234,0.04) 1px, transparent 1px)",
-          backgroundSize: "46px 46px",
-        }}
-      />
-
-      {/* Warm bottom depth */}
-      <div
-        aria-hidden
-        className="absolute bottom-0 left-0 right-0 z-10 h-52 bg-gradient-to-t from-[#06282c] via-[#06282c]/72 to-transparent"
-      />
-
-      {/* Content */}
-      <div className="relative z-20 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pb-12 pt-36 sm:px-6 sm:pb-14 lg:px-8 lg:pb-16">
-        <div className="max-w-5xl">
+          {/* Location / history line */}
           <motion.div
-            className="mb-5 flex flex-wrap items-center gap-3"
+            className="mb-5 flex items-center gap-3"
             initial={loaded && !reduced ? { opacity: 0, y: 12 } : {}}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6, ease }}
+            transition={{
+              delay: 0.18,
+              duration: 0.55,
+              ease,
+            }}
           >
-            <span className="h-px w-12 bg-[#d8a441]/75" />
-            <p className="text-xs font-extrabold uppercase tracking-[0.36em] text-[#d8a441]">
+            <span className="h-px w-10 bg-[#67E8F9]" />
+
+            <p
+              className="text-[0.68rem] font-extrabold uppercase tracking-[0.34em] text-[#FFF3A6] sm:text-xs"
+              style={{
+                textShadow: "0 2px 10px rgba(0,0,0,0.9)",
+              }}
+            >
               Eastern India · since 2009
             </p>
           </motion.div>
 
-          <motion.div
-            className="relative"
+          {/* Hero title */}
+          <motion.h1
+            className="max-w-5xl bg-gradient-to-r from-[#FFF7E8] via-[#FFFFFF] to-[#9BEAF4] bg-clip-text font-[var(--font-display)] text-[3.35rem] font-extrabold leading-[0.94] tracking-[-0.055em] text-transparent sm:text-[4.6rem] lg:text-[5.8rem]"
+            style={{
+              filter: "drop-shadow(0 5px 14px rgba(0,0,0,0.62))",
+            }}
             initial={loaded && !reduced ? { opacity: 0, y: 20 } : {}}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.75, ease }}
+            transition={{
+              delay: 0.3,
+              duration: 0.72,
+              ease,
+            }}
           >
-            <div
-              aria-hidden
-              className="absolute -left-5 top-2 hidden h-[calc(100%-0.5rem)] w-px bg-gradient-to-b from-[#d8a441]/75 via-[#b96543]/58 to-transparent lg:block"
-            />
+            {title}
+          </motion.h1>
 
-            <h1 className="max-w-4xl font-serif text-[3.35rem] font-bold leading-[1.02] tracking-[-0.045em] text-[#fff8ea] drop-shadow-[0_20px_48px_rgba(0,0,0,0.34)] sm:text-6xl lg:text-[4.8rem]">
-              {title}
-            </h1>
-          </motion.div>
-
+          {/* Subtitle */}
           <motion.p
-            className="mt-7 max-w-2xl text-lg font-medium leading-8 text-[#fff8ea]/86 sm:text-xl sm:leading-9"
-            initial={loaded && !reduced ? { opacity: 0, y: 16 } : {}}
+            className="mt-7 max-w-3xl text-lg font-semibold leading-8 text-white sm:text-xl sm:leading-9"
+            style={{
+              textShadow:
+                "0 2px 4px rgba(0,0,0,0.9), 0 8px 22px rgba(0,0,0,0.55)",
+            }}
+            initial={loaded && !reduced ? { opacity: 0, y: 14 } : {}}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.65, ease }}
+            transition={{
+              delay: 0.45,
+              duration: 0.62,
+              ease,
+            }}
           >
             {subtitle}
           </motion.p>
         </div>
 
-        {/* Stats band */}
+        {/* Stats */}
         <motion.div
-          className="mt-12 grid grid-cols-2 gap-3 border-t border-[#d8a441]/30 pt-6 sm:grid-cols-4 sm:gap-4 lg:mt-14 lg:pt-7"
+          className="mt-11 grid grid-cols-2 gap-3 border-t border-white/30 pt-6 sm:grid-cols-4 sm:gap-4 lg:mt-12"
           initial={loaded && !reduced ? { opacity: 0 } : {}}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.6 }}
+          transition={{
+            delay: 0.65,
+            duration: 0.55,
+          }}
         >
           {safeStats(stats).map((s, i) => (
             <motion.div
               key={s.label}
-              className="group rounded-2xl border border-[#fff8ea]/14 bg-[#fff8ea]/[0.085] px-4 py-4 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-[#d8a441]/40 hover:bg-[#fff8ea]/[0.12] sm:px-5 sm:py-5"
+              className="group relative overflow-hidden rounded-2xl border border-white/25 bg-[#061b27]/40 px-4 py-4 shadow-[0_14px_38px_rgba(0,0,0,0.24)] backdrop-blur-[3px] transition-all duration-300 hover:-translate-y-1 hover:border-[#67E8F9]/55 hover:bg-[#061b27]/52 sm:px-5 sm:py-5"
               initial={loaded && !reduced ? { opacity: 0, y: 10 } : {}}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.75 + i * 0.08, duration: 0.5 }}
+              transition={{
+                delay: 0.72 + i * 0.08,
+                duration: 0.48,
+              }}
             >
-              <div className="font-serif text-4xl font-bold leading-none text-[#fff8ea] sm:text-5xl">
+              {/* Aqua detail */}
+              <div
+                aria-hidden
+                className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#67E8F9]/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              />
+
+              {/* Metric */}
+              <div
+                className="bg-gradient-to-r from-[#FFF7E8] via-white to-[#9BEAF4] bg-clip-text font-[var(--font-display)] text-[2.75rem] font-extrabold leading-none tracking-[-0.05em] text-transparent sm:text-[3.25rem]"
+                style={{
+                  filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.55))",
+                }}
+              >
                 <CountUp value={s.value} />
               </div>
-              <div className="mt-2 text-[0.68rem] font-extrabold uppercase leading-5 tracking-[0.18em] text-[#fff8ea]/68">
+
+              {/* Metric label */}
+              <div
+                className="mt-3 text-[0.66rem] font-extrabold uppercase leading-5 tracking-[0.17em] text-white/82"
+                style={{
+                  textShadow: "0 2px 6px rgba(0,0,0,0.75)",
+                }}
+              >
                 {s.label}
               </div>
             </motion.div>
@@ -196,28 +232,36 @@ export default function Hero({
         <motion.a
           href="#story"
           aria-label="Begin the story"
-          className="mt-9 inline-flex w-fit items-center gap-3 rounded-full border border-[#fff8ea]/14 bg-[#fff8ea]/[0.07] px-4 py-2.5 text-xs font-extrabold uppercase tracking-[0.25em] text-[#fff8ea]/72 backdrop-blur-md transition-all duration-300 hover:border-[#d8a441]/45 hover:bg-[#d8a441]/12 hover:text-[#d8a441]"
+          className="mt-7 inline-flex w-fit items-center gap-3 rounded-full border border-white/25 bg-black/25 px-4 py-2.5 text-[0.68rem] font-extrabold uppercase tracking-[0.23em] text-white/85 backdrop-blur-[3px] transition-all duration-300 hover:border-[#67E8F9]/60 hover:bg-[#064E7A]/45 hover:text-[#B9F6FF]"
           initial={loaded && !reduced ? { opacity: 0 } : {}}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.1, duration: 0.5 }}
+          transition={{
+            delay: 1,
+            duration: 0.5,
+          }}
         >
           Begin the story
+
           <motion.span
             aria-hidden
             className="text-base leading-none"
-            animate={reduced ? {} : { y: [0, 5, 0] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+            animate={reduced ? {} : { y: [0, 4, 0] }}
+            transition={{
+              duration: 1.4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
           >
             ↓
           </motion.span>
         </motion.a>
       </div>
 
-      {/* Slide dots */}
+      {/* Slide indicators */}
       {slides.length > 1 && (
         <div
           aria-label="Photograph carousel"
-          className="absolute bottom-5 right-4 z-20 flex items-center gap-1.5 rounded-full border border-[#fff8ea]/12 bg-[#06282c]/35 px-2 py-1.5 backdrop-blur-md sm:right-8"
+          className="absolute bottom-5 right-4 z-20 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/25 px-2 py-1.5 backdrop-blur-[3px] sm:right-8"
         >
           {slides.map((_, i) => (
             <button
@@ -225,10 +269,10 @@ export default function Hero({
               onClick={() => setIndex(i)}
               aria-label={`Slide ${i + 1}`}
               aria-pressed={i === index}
-              className="h-1.5 rounded-full bg-[#fff8ea]/40 transition-all duration-300"
+              className="h-1.5 rounded-full bg-white/50 transition-all duration-300"
               style={{
                 width: i === index ? 26 : 8,
-                backgroundColor: i === index ? "#d8a441" : undefined,
+                backgroundColor: i === index ? "#67E8F9" : undefined,
               }}
             />
           ))}
