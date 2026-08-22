@@ -1,34 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  /* Core site palette — classical Indian institutional archive */
-  --background: #f7efe4;
-  --foreground: #122033;
+  /* Core AHEAD palette — teal, beige and Indian archival warmth */
+  --background: #f4e8d4;
+  --foreground: #102a2d;
 
-  --primary: #14314d;
-  --secondary: #2f5f46;
-  --accent: #b85c38;
-  --muted: #f3eadc;
+  --primary: #0f3f3e;
+  --secondary: #1f6f68;
+  --accent: #b96543;
+  --muted: #fff8ea;
 
-  /* Extended heritage palette */
-  --ink: #102a43;
-  --ink-soft: #1d3f5f;
-  --paper: #f7efe4;
-  --paper-warm: #efe2cf;
-  --paper-light: #fffaf1;
-  --terracotta: #b85c38;
-  --terracotta-soft: #d9825b;
-  --marigold: #dfaf45;
-  --paddy: #2f5f46;
-  --leaf: #426f53;
-  --clay: #c9a27c;
+  /* Extended palette */
+  --teal-deep: #0f3f3e;
+  --teal-ink: #123c46;
+  --teal-soft: #1f6f68;
+  --teal-muted: #4d8b82;
+
+  --paper: #f4e8d4;
+  --paper-light: #fff8ea;
+  --paper-soft: #f8eedc;
+  --beige-clay: #e8d6b8;
+  --sand-border: #d8c29f;
+
+  --terracotta: #b96543;
+  --terracotta-soft: #d38763;
+  --marigold: #d8a441;
+
+  --text-main: #102a2d;
+  --text-muted: #4c5f61;
 
   /* Borders, shadows and surfaces */
-  --border-soft: rgba(20, 49, 77, 0.14);
-  --border-warm: rgba(184, 92, 56, 0.22);
-  --shadow-soft: 0 18px 50px rgba(16, 42, 67, 0.10);
-  --shadow-card: 0 10px 30px rgba(16, 42, 67, 0.08);
-  --radius-card: 1.15rem;
+  --border-soft: rgba(15, 63, 62, 0.14);
+  --border-warm: rgba(185, 101, 67, 0.22);
+  --shadow-soft: 0 18px 50px rgba(15, 63, 62, 0.10);
+  --shadow-card: 0 12px 34px rgba(15, 63, 62, 0.08);
+  --radius-card: 1.2rem;
 }
 
 @theme inline {
@@ -51,6 +57,8 @@
 html {
   scroll-padding-top: 76px;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -62,37 +70,55 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 8% 0%, rgba(223, 175, 69, 0.08), transparent 28rem),
-    radial-gradient(circle at 95% 12%, rgba(47, 95, 70, 0.08), transparent 26rem),
-    var(--background);
+    radial-gradient(circle at 8% 0%, rgba(216, 164, 65, 0.10), transparent 28rem),
+    radial-gradient(circle at 96% 10%, rgba(31, 111, 104, 0.10), transparent 30rem),
+    linear-gradient(180deg, #fff8ea 0%, #f4e8d4 46%, #f8eedc 100%);
   color: var(--foreground);
   font-family: var(--font-inter), "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 16.5px;
+  line-height: 1.65;
   font-feature-settings: "kern";
 }
 
-/* Subtle paper texture utility.
-   Apply only to public-facing sections where needed. */
+/* Slightly stronger default reading weight */
+p,
+li,
+dd {
+  font-weight: 450;
+}
+
+/* Better serif rendering for institutional headings */
+h1,
+h2,
+h3,
+h4,
+.font-serif {
+  letter-spacing: -0.025em;
+}
+
+/* Subtle paper texture utility */
 .heritage-paper {
   background-color: var(--paper);
   background-image:
-    linear-gradient(rgba(184, 92, 56, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 49, 77, 0.025) 1px, transparent 1px);
+    linear-gradient(rgba(185, 101, 67, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 63, 62, 0.03) 1px, transparent 1px);
   background-size: 42px 42px;
 }
 
 /* Warm archival section surface */
 .heritage-section {
   background:
-    radial-gradient(circle at top left, rgba(223, 175, 69, 0.10), transparent 22rem),
+    radial-gradient(circle at top left, rgba(216, 164, 65, 0.12), transparent 24rem),
+    radial-gradient(circle at top right, rgba(31, 111, 104, 0.08), transparent 26rem),
     linear-gradient(180deg, var(--paper-light), var(--paper));
 }
 
-/* Institutional dark surface */
+/* Institutional dark teal surface */
 .heritage-ink {
   background:
-    radial-gradient(circle at top left, rgba(223, 175, 69, 0.10), transparent 24rem),
-    linear-gradient(135deg, #102a43, #173d5b);
-  color: #fffaf1;
+    radial-gradient(circle at top left, rgba(216, 164, 65, 0.12), transparent 24rem),
+    linear-gradient(135deg, #0f3f3e, #123c46 52%, #0b2f35);
+  color: #fff8ea;
 }
 
 /* Reusable card treatment */
@@ -100,16 +126,16 @@ body {
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-card);
   background:
-    linear-gradient(180deg, rgba(255, 250, 241, 0.96), rgba(247, 239, 228, 0.96));
+    linear-gradient(180deg, rgba(255, 248, 234, 0.96), rgba(244, 232, 212, 0.92));
   box-shadow: var(--shadow-card);
 }
 
-/* Archival labels used for chapter numbers, small headings and tags */
+/* Archival labels */
 .heritage-label {
   color: var(--terracotta);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.36em;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.34em;
   text-transform: uppercase;
 }
 
@@ -120,9 +146,9 @@ body {
   background:
     linear-gradient(
       90deg,
-      rgba(184, 92, 56, 0.55),
-      rgba(223, 175, 69, 0.32),
-      rgba(20, 49, 77, 0.10),
+      rgba(185, 101, 67, 0.55),
+      rgba(216, 164, 65, 0.34),
+      rgba(31, 111, 104, 0.16),
       transparent
     );
 }
@@ -130,13 +156,13 @@ body {
 /* Warm link/CTA treatment */
 .heritage-link {
   color: var(--terracotta);
-  font-weight: 700;
+  font-weight: 750;
   text-decoration: none;
   transition: color 180ms ease, transform 180ms ease;
 }
 
 .heritage-link:hover {
-  color: var(--ink);
+  color: var(--teal-deep);
 }
 
 /* Custom scrollbar */
@@ -145,22 +171,22 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #efe2cf;
+  background: #eadac0;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(20, 49, 77, 0.35);
+  background: rgba(15, 63, 62, 0.38);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(20, 49, 77, 0.58);
+  background: rgba(15, 63, 62, 0.62);
 }
 
 /* Selection color */
 ::selection {
-  background: rgba(223, 175, 69, 0.45);
-  color: var(--ink);
+  background: rgba(216, 164, 65, 0.48);
+  color: var(--teal-deep);
 }
 
 /* Focus visible styles */
