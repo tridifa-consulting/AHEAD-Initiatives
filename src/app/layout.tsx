@@ -1,7 +1,25 @@
 import type { Metadata } from "next";
-import { Inter, Libre_Baskerville } from "next/font/google";
+import {
+  Inter,
+  Libre_Baskerville,
+  Manrope,
+} from "next/font/google";
+
 import "./globals.css";
 import Footer from "@/components/Footer";
+
+/* ──────────────────────────────────────────────────────────────
+   Typography system
+
+   Inter
+   → Body copy, navigation, controls, labels and utility text
+
+   Libre Baskerville
+   → Institutional/editorial headings, chapter titles and manifesto
+
+   Manrope
+   → Hero/display typography, major numbers and strong visual statements
+────────────────────────────────────────────────────────────── */
 
 const inter = Inter({
   variable: "--font-inter",
@@ -16,18 +34,49 @@ const serif = Libre_Baskerville({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.aheadinitiatives.in";
+const display = Manrope({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  display: "swap",
+});
+
+/* ──────────────────────────────────────────────────────────────
+   Site URL
+────────────────────────────────────────────────────────────── */
+
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  "https://www.aheadinitiatives.in";
+
+/* ──────────────────────────────────────────────────────────────
+   Verified fallback metadata
+────────────────────────────────────────────────────────────── */
 
 const fallbackMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "AHEAD Initiatives — Addressing Hunger, Empowerment and Development",
+
+  title:
+    "AHEAD Initiatives — Addressing Hunger, Empowerment and Development",
+
   description:
     "AHEAD Initiatives is a registered not-for-profit in Eastern India focused on local self-governance, natural resource management, and contextual education.",
+
   keywords: [
-    "AHEAD Initiatives", "NGO", "Eastern India", "self-governance", "food security",
-    "rural education", "Panchayati Raj", "natural resource management",
+    "AHEAD Initiatives",
+    "NGO",
+    "Eastern India",
+    "self-governance",
+    "food security",
+    "rural education",
+    "Panchayati Raj",
+    "natural resource management",
   ],
-  alternates: { canonical: "/" },
+
+  alternates: {
+    canonical: "/",
+  },
+
   openGraph: {
     title: "AHEAD Initiatives",
     description:
@@ -38,13 +87,22 @@ const fallbackMetadata: Metadata = {
   },
 };
 
+/* ──────────────────────────────────────────────────────────────
+   Organisation structured data
+────────────────────────────────────────────────────────────── */
+
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "NGO",
+
   name: "AHEAD Initiatives",
+
   url: siteUrl,
+
   logo: `${siteUrl}/logo.jpg`,
+
   foundingDate: "2009-04-20",
+
   address: {
     "@type": "PostalAddress",
     streetAddress: "32/6 Gariahat Road (S)",
@@ -53,42 +111,91 @@ const jsonLd = {
     addressRegion: "West Bengal",
     addressCountry: "IN",
   },
+
   email: "ahead@aheadinitiatives.in",
+
   telephone: "+91-33-40670369",
+
   sameAs: [
     "https://www.linkedin.com/company/theahead-initiatives/",
     "https://www.youtube.com/@aheadinitiatives4836",
   ],
 };
 
+/* ──────────────────────────────────────────────────────────────
+   Dynamic metadata
+
+   SEO defaults remain editable through Admin → Site settings.
+   If Supabase cannot be reached, the verified fallback values above
+   remain available so metadata generation does not fail unnecessarily.
+────────────────────────────────────────────────────────────── */
+
 export async function generateMetadata(): Promise<Metadata> {
-  // SEO defaults are editable in Admin → Site settings; fall back to the
-  // verified hardcoded values if the database is unreachable at build time.
   try {
-    const { createPublicClient } = await import("@/lib/supabase/public");
+    const { createPublicClient } =
+      await import("@/lib/supabase/public");
+
     const { data } = await createPublicClient()
-      .from("settings").select("value").eq("key", "seo").single();
-    const seo = data?.value as { default_title?: string; default_description?: string } | null;
+      .from("settings")
+      .select("value")
+      .eq("key", "seo")
+      .single();
+
+    const seo = data?.value as {
+      default_title?: string;
+      default_description?: string;
+    } | null;
+
     if (seo?.default_title) {
       return {
         ...fallbackMetadata,
+
         title: seo.default_title,
-        description: seo.default_description ?? fallbackMetadata.description,
+
+        description:
+          seo.default_description ??
+          fallbackMetadata.description,
       };
     }
-  } catch { /* fall through to verified defaults */ }
+  } catch {
+    /* Fall through to verified defaults */
+  }
+
   return fallbackMetadata;
 }
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+/* ──────────────────────────────────────────────────────────────
+   Root layout
+────────────────────────────────────────────────────────────── */
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en" className={`${inter.variable} ${serif.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`
+        ${inter.variable}
+        ${serif.variable}
+        ${display.variable}
+        h-full
+        antialiased
+      `}
+    >
       <body className="flex min-h-full flex-col font-sans">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd),
+          }}
         />
-        <main className="flex-1">{children}</main>
+
+        <main className="flex-1">
+          {children}
+        </main>
+
         <Footer />
       </body>
     </html>
