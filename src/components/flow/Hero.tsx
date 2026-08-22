@@ -66,7 +66,7 @@ export default function Hero({
   return (
     <section
       id="top"
-      className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-[#102a43]"
+      className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-[#0f3f3e]"
     >
       {/* Photo layer: cross-fade via AnimatePresence */}
       <AnimatePresence initial={false}>
@@ -98,14 +98,15 @@ export default function Hero({
         </motion.div>
       </AnimatePresence>
 
-      {/* Deep archival colour grading */}
+      {/* Teal archival colour grading */}
       <div
         aria-hidden
-        className="absolute inset-0 z-10 bg-gradient-to-t from-[#071827] via-[#14314d]/78 to-[#14314d]/24"
+        className="absolute inset-0 z-10 bg-gradient-to-t from-[#06282c] via-[#0f3f3e]/78 to-[#123c46]/28"
       />
+
       <div
         aria-hidden
-        className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_18%_22%,rgba(223,175,69,0.18),transparent_26rem),radial-gradient(circle_at_82%_18%,rgba(184,92,56,0.14),transparent_30rem),linear-gradient(90deg,rgba(7,24,39,0.72),rgba(7,24,39,0.22)_55%,rgba(7,24,39,0.72))]"
+        className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_18%_20%,rgba(216,164,65,0.18),transparent_28rem),radial-gradient(circle_at_84%_22%,rgba(185,101,67,0.13),transparent_30rem),linear-gradient(90deg,rgba(6,40,44,0.76),rgba(6,40,44,0.24)_55%,rgba(6,40,44,0.68))]"
       />
 
       {/* Subtle handmade paper / film grain feel */}
@@ -114,15 +115,15 @@ export default function Hero({
         className="pointer-events-none absolute inset-0 z-10 opacity-[0.18]"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(255,250,241,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,250,241,0.035) 1px, transparent 1px)",
+            "linear-gradient(rgba(255,248,234,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(255,248,234,0.04) 1px, transparent 1px)",
           backgroundSize: "46px 46px",
         }}
       />
 
-      {/* Warm bottom manuscript glow */}
+      {/* Warm bottom depth */}
       <div
         aria-hidden
-        className="absolute bottom-0 left-0 right-0 z-10 h-48 bg-gradient-to-t from-[#071827] via-[#071827]/70 to-transparent"
+        className="absolute bottom-0 left-0 right-0 z-10 h-52 bg-gradient-to-t from-[#06282c] via-[#06282c]/72 to-transparent"
       />
 
       {/* Content */}
@@ -134,8 +135,8 @@ export default function Hero({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6, ease }}
           >
-            <span className="h-px w-10 bg-[#dfaf45]/70" />
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#dfaf45]">
+            <span className="h-px w-12 bg-[#d8a441]/75" />
+            <p className="text-xs font-extrabold uppercase tracking-[0.36em] text-[#d8a441]">
               Eastern India · since 2009
             </p>
           </motion.div>
@@ -148,16 +149,16 @@ export default function Hero({
           >
             <div
               aria-hidden
-              className="absolute -left-5 top-2 hidden h-[calc(100%-0.5rem)] w-px bg-gradient-to-b from-[#dfaf45]/70 via-[#b85c38]/55 to-transparent lg:block"
+              className="absolute -left-5 top-2 hidden h-[calc(100%-0.5rem)] w-px bg-gradient-to-b from-[#d8a441]/75 via-[#b96543]/58 to-transparent lg:block"
             />
 
-            <h1 className="max-w-4xl font-serif text-5xl font-semibold leading-[1.03] tracking-[-0.035em] text-[#fffaf1] drop-shadow-[0_18px_45px_rgba(0,0,0,0.28)] sm:text-6xl lg:text-7xl">
+            <h1 className="max-w-4xl font-serif text-[3.35rem] font-bold leading-[1.02] tracking-[-0.045em] text-[#fff8ea] drop-shadow-[0_20px_48px_rgba(0,0,0,0.34)] sm:text-6xl lg:text-[4.8rem]">
               {title}
             </h1>
           </motion.div>
 
           <motion.p
-            className="mt-6 max-w-2xl text-base leading-8 text-[#fffaf1]/82 sm:text-lg"
+            className="mt-7 max-w-2xl text-lg font-medium leading-8 text-[#fff8ea]/86 sm:text-xl sm:leading-9"
             initial={loaded && !reduced ? { opacity: 0, y: 16 } : {}}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.65, ease }}
@@ -168,7 +169,7 @@ export default function Hero({
 
         {/* Stats band */}
         <motion.div
-          className="mt-12 grid grid-cols-2 gap-3 border-t border-[#dfaf45]/28 pt-6 sm:grid-cols-4 sm:gap-4 lg:mt-14 lg:pt-7"
+          className="mt-12 grid grid-cols-2 gap-3 border-t border-[#d8a441]/30 pt-6 sm:grid-cols-4 sm:gap-4 lg:mt-14 lg:pt-7"
           initial={loaded && !reduced ? { opacity: 0 } : {}}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.6 }}
@@ -176,15 +177,15 @@ export default function Hero({
           {safeStats(stats).map((s, i) => (
             <motion.div
               key={s.label}
-              className="group rounded-2xl border border-[#fffaf1]/12 bg-[#fffaf1]/[0.075] px-4 py-4 shadow-[0_18px_45px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-[#dfaf45]/35 hover:bg-[#fffaf1]/[0.105] sm:px-5 sm:py-5"
+              className="group rounded-2xl border border-[#fff8ea]/14 bg-[#fff8ea]/[0.085] px-4 py-4 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-[#d8a441]/40 hover:bg-[#fff8ea]/[0.12] sm:px-5 sm:py-5"
               initial={loaded && !reduced ? { opacity: 0, y: 10 } : {}}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.75 + i * 0.08, duration: 0.5 }}
             >
-              <div className="font-serif text-4xl font-semibold leading-none text-[#fffaf1] sm:text-5xl">
+              <div className="font-serif text-4xl font-bold leading-none text-[#fff8ea] sm:text-5xl">
                 <CountUp value={s.value} />
               </div>
-              <div className="mt-2 text-[0.66rem] font-semibold uppercase leading-5 tracking-[0.18em] text-[#fffaf1]/62">
+              <div className="mt-2 text-[0.68rem] font-extrabold uppercase leading-5 tracking-[0.18em] text-[#fff8ea]/68">
                 {s.label}
               </div>
             </motion.div>
@@ -195,7 +196,7 @@ export default function Hero({
         <motion.a
           href="#story"
           aria-label="Begin the story"
-          className="mt-9 inline-flex w-fit items-center gap-3 rounded-full border border-[#fffaf1]/12 bg-[#fffaf1]/[0.06] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.25em] text-[#fffaf1]/68 backdrop-blur-md transition-all duration-300 hover:border-[#dfaf45]/40 hover:bg-[#dfaf45]/10 hover:text-[#dfaf45]"
+          className="mt-9 inline-flex w-fit items-center gap-3 rounded-full border border-[#fff8ea]/14 bg-[#fff8ea]/[0.07] px-4 py-2.5 text-xs font-extrabold uppercase tracking-[0.25em] text-[#fff8ea]/72 backdrop-blur-md transition-all duration-300 hover:border-[#d8a441]/45 hover:bg-[#d8a441]/12 hover:text-[#d8a441]"
           initial={loaded && !reduced ? { opacity: 0 } : {}}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.1, duration: 0.5 }}
@@ -216,7 +217,7 @@ export default function Hero({
       {slides.length > 1 && (
         <div
           aria-label="Photograph carousel"
-          className="absolute bottom-5 right-4 z-20 flex items-center gap-1.5 rounded-full border border-[#fffaf1]/10 bg-[#071827]/30 px-2 py-1.5 backdrop-blur-md sm:right-8"
+          className="absolute bottom-5 right-4 z-20 flex items-center gap-1.5 rounded-full border border-[#fff8ea]/12 bg-[#06282c]/35 px-2 py-1.5 backdrop-blur-md sm:right-8"
         >
           {slides.map((_, i) => (
             <button
@@ -224,10 +225,10 @@ export default function Hero({
               onClick={() => setIndex(i)}
               aria-label={`Slide ${i + 1}`}
               aria-pressed={i === index}
-              className="h-1.5 rounded-full bg-[#fffaf1]/40 transition-all duration-300"
+              className="h-1.5 rounded-full bg-[#fff8ea]/40 transition-all duration-300"
               style={{
                 width: i === index ? 26 : 8,
-                backgroundColor: i === index ? "#dfaf45" : undefined,
+                backgroundColor: i === index ? "#d8a441" : undefined,
               }}
             />
           ))}
