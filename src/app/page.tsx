@@ -27,7 +27,6 @@ import {
   getBlogPosts,
   getDocuments,
   getMedia,
-  getPartners,
   getPeople,
   getSections,
   getSettings,
@@ -44,12 +43,8 @@ import { t } from "@/lib/types";
  * Most chapters render when their corresponding database section is
  * published. RLS keeps draft sections hidden from anonymous readers.
  *
- * Partners are handled slightly differently because AHEAD already has an
- * established public partner network. When public partner records exist,
- * the Partners chapter remains part of the public flow even if a matching
- * site_sections row has not been created.
- *
- * If a Partners section exists in the CMS, its title/subtitle are still used.
+ * Partners are established public content and are intentionally rendered
+ * independently of Supabase/CMS using local assets in the website repository.
  *
  * ISR keeps the page static; admin publish actions will call
  * revalidatePath("/") for near-instant updates (Phase 3).
@@ -88,7 +83,6 @@ export default async function Home() {
     videos,
     socialPosts,
     blogPosts,
-    partners,
     galleryEdu,
     galleryFood,
     avDocs,
@@ -104,7 +98,6 @@ export default async function Home() {
     getVideos(9, db),
     getSocialPosts(8, db),
     getBlogPosts(6, db),
-    getPartners(db),
     getMedia("gallery_education", db),
     getMedia("gallery_food", db),
     getMedia("av_documentaries", db),
@@ -185,18 +178,10 @@ export default async function Home() {
   ];
 
   /**
-   * Partners are established public content on AHEAD's existing website.
-   *
-   * Their visibility should therefore depend on public partner records
-   * actually existing, rather than requiring a second site_sections switch.
-   *
-   * Public visitors still receive only the partner records allowed by the
-   * existing database/RLS layer. Draft preview continues to use the staff DB
-   * client above.
+   * Partners are established public content migrated directly from
+   * AHEAD's existing website. This chapter is intentionally independent
+   * of Supabase/CMS and therefore always remains in the public flow.
    */
-  const showPartners =
-    partners.length > 0;
-
   const present =
     chapterOrder.filter(
       (slug) => {
@@ -204,7 +189,7 @@ export default async function Home() {
           slug ===
           "partners"
         ) {
-          return showPartners;
+          return true;
         }
 
         return Boolean(
@@ -754,50 +739,23 @@ export default async function Home() {
       {/* ─────────────────────────────────────────────
           PARTNERS
 
-          Established public AHEAD content.
-          Visible whenever public partner records exist.
+          Established public content migrated from
+          AHEAD's existing website.
 
-          If a matching CMS section exists, its title/subtitle are used.
-          Otherwise we retain AHEAD's established public heading.
+          This chapter is intentionally independent
+          of Supabase/CMS.
       ───────────────────────────────────────────── */}
 
-      {showPartners && (
-        <Chapter
-          slug="partners"
-          number={num(
-            "partners"
-          )}
-          title={
-            bySlug[
-              "partners"
-            ]
-              ? t(
-                  bySlug[
-                    "partners"
-                  ].title
-                )
-              : "Our present Partners"
-          }
-          subtitle={
-            bySlug[
-              "partners"
-            ]
-              ? t(
-                  bySlug[
-                    "partners"
-                  ].subtitle
-                )
-              : undefined
-          }
-          tone="white"
-        >
-          <PartnersGrid
-            partners={
-              partners
-            }
-          />
-        </Chapter>
-      )}
+      <Chapter
+        slug="partners"
+        number={num(
+          "partners"
+        )}
+        title="Our present Partners"
+        tone="white"
+      >
+        <PartnersGrid />
+      </Chapter>
 
       {/* ─────────────────────────────────────────────
           PULL QUOTE
