@@ -16,13 +16,56 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  ArrowUpRight,
 } from "lucide-react";
 import type { MediaRow } from "@/lib/types";
 import { t } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const LEARNING_BATCH = 12;
+
+/* ─────────────────────────────────────────────────────────────
+   VIDEO PREVIEW HELPERS
+───────────────────────────────────────────────────────────── */
+
+/**
+ * Move a preview video to approximately the middle of the film.
+ *
+ * This creates a much more representative visual thumbnail than
+ * relying on the first frame, which is often black or a title card.
+ */
+function seekToMiddle(video: HTMLVideoElement) {
+  if (
+    !Number.isFinite(video.duration) ||
+    video.duration <= 0
+  ) {
+    return;
+  }
+
+  const middle = Math.max(
+    0.5,
+    Math.min(
+      video.duration - 0.25,
+      video.duration * 0.5
+    )
+  );
+
+  try {
+    video.currentTime = middle;
+  } catch {
+    /* Some browsers may not permit seeking until enough metadata exists. */
+  }
+}
+
+/**
+ * Prepare a video as a static midpoint thumbnail.
+ */
+function preparePreview(
+  video: HTMLVideoElement
+) {
+  video.muted = true;
+  video.pause();
+  seekToMiddle(video);
+}
 
 /* ─────────────────────────────────────────────────────────────
    MODAL PLAYER
@@ -35,16 +78,24 @@ function FilmPlayer({
   film: MediaRow;
   onClose: () => void;
 }) {
-  const reduced = useReducedMotion();
+  const reduced =
+    useReducedMotion();
 
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+    const onKey = (
+      event: KeyboardEvent
+    ) => {
+      if (
+        event.key === "Escape"
+      ) {
         onClose();
       }
     };
 
-    window.addEventListener("keydown", onKey);
+    window.addEventListener(
+      "keydown",
+      onKey
+    );
 
     const previousOverflow =
       document.body.style.overflow;
@@ -177,6 +228,8 @@ function FeaturedDocumentary({
 
     if (!video) return;
 
+    video.muted = true;
+
     video
       .play()
       .catch(() => {});
@@ -189,12 +242,7 @@ function FeaturedDocumentary({
     if (!video) return;
 
     video.pause();
-
-    try {
-      video.currentTime = 0.5;
-    } catch {
-      /* Browser may not have metadata yet */
-    }
+    seekToMiddle(video);
   };
 
   return (
@@ -223,22 +271,28 @@ function FeaturedDocumentary({
         onMouseEnter={preview}
         onMouseLeave={stopPreview}
       >
+        {/* Actual film — midpoint becomes the static thumbnail */}
         <video
           ref={videoRef}
-          src={`${
-            film.url ?? ""
-          }#t=0.5`}
+          src={film.url ?? ""}
           muted
           loop
           playsInline
           preload="metadata"
+          onLoadedMetadata={(
+            event
+          ) =>
+            preparePreview(
+              event.currentTarget
+            )
+          }
           className="absolute inset-0 h-full w-full object-cover"
         />
 
-        {/* Readability treatment only over lower region */}
+        {/* Only a lower readability gradient, not a colour tint */}
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-t from-[#031F2E]/88 via-[#031F2E]/18 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-[#031F2E]/86 via-[#031F2E]/24 to-transparent"
         />
 
         {/* Archive marker */}
@@ -253,30 +307,33 @@ function FeaturedDocumentary({
         </div>
 
         {/* Sequence */}
-        <div className="absolute right-5 top-5 font-[var(--font-display)] text-[0.68rem] font-extrabold tracking-[0.14em] text-white/70 sm:right-7 sm:top-7">
+        <div className="absolute right-5 top-5 rounded-full border border-white/14 bg-black/25 px-3 py-2 font-[var(--font-display)] text-[0.62rem] font-extrabold tracking-[0.14em] text-white/78 backdrop-blur-sm sm:right-7 sm:top-7">
           {String(
             index + 1
           ).padStart(2, "0")}
+
           <span className="mx-2 text-white/30">
             /
           </span>
-          {String(
-            total
-          ).padStart(2, "0")}
+
+          {String(total).padStart(
+            2,
+            "0"
+          )}
         </div>
 
-        {/* Play */}
+        {/* Main Play */}
         <button
           type="button"
           onClick={onPlay}
           aria-label={`Play: ${film.title}`}
-          className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-[#FFF8EA]/94 text-[#064E7A] shadow-[0_16px_42px_rgba(0,0,0,0.28)] transition-all duration-300 hover:scale-105 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#67E8F9] sm:h-24 sm:w-24"
+          className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-[#FFF8EA]/94 text-[#064E7A] shadow-[0_16px_42px_rgba(0,0,0,0.28)] transition-all duration-300 hover:scale-110 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#67E8F9] sm:h-24 sm:w-24"
         >
           <Play className="ml-1 h-8 w-8 fill-current sm:h-9 sm:w-9" />
         </button>
 
-        {/* Featured title */}
-        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7 lg:p-8">
+        {/* Featured metadata */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 sm:p-7 lg:p-8">
           <div className="max-w-3xl">
             <div className="mb-2 font-[var(--font-display)] text-[0.62rem] font-extrabold uppercase tracking-[0.2em] text-[#67E8F9]">
               Documentary
@@ -287,7 +344,7 @@ function FeaturedDocumentary({
             </h4>
 
             {t(film.caption) && (
-              <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-white/68 sm:text-base">
+              <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-white/72 sm:text-base">
                 {t(film.caption)}
               </p>
             )}
@@ -299,7 +356,143 @@ function FeaturedDocumentary({
 }
 
 /* ─────────────────────────────────────────────────────────────
-   DOCUMENTARY SELECTOR
+   DOCUMENTARY THUMBNAIL
+───────────────────────────────────────────────────────────── */
+
+function DocumentaryThumbnail({
+  film,
+  index,
+  active,
+  onSelect,
+}: {
+  film: MediaRow;
+  index: number;
+  active: boolean;
+  onSelect: () => void;
+}) {
+  const videoRef =
+    useRef<HTMLVideoElement>(null);
+
+  const reduced =
+    useReducedMotion();
+
+  const startPreview = () => {
+    if (reduced) return;
+
+    const video =
+      videoRef.current;
+
+    if (!video) return;
+
+    video.muted = true;
+
+    video
+      .play()
+      .catch(() => {});
+  };
+
+  const stopPreview = () => {
+    const video =
+      videoRef.current;
+
+    if (!video) return;
+
+    video.pause();
+    seekToMiddle(video);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      onMouseEnter={startPreview}
+      onMouseLeave={stopPreview}
+      onFocus={startPreview}
+      onBlur={stopPreview}
+      aria-pressed={active}
+      className={`group relative w-[230px] shrink-0 overflow-hidden rounded-[1.15rem] border text-left transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#0891B2] ${
+        active
+          ? "border-[#0891B2]/50 bg-[#064E7A] shadow-[0_14px_32px_rgba(6,78,122,0.18)]"
+          : "border-[#064E7A]/10 bg-[#FFFDF8] hover:-translate-y-1 hover:border-[#0891B2]/30 hover:shadow-[0_12px_28px_rgba(6,78,122,0.10)]"
+      }`}
+    >
+      {/* Thumbnail visual */}
+      <div className="relative aspect-video overflow-hidden bg-[#031F2E]">
+        <video
+          ref={videoRef}
+          src={film.url ?? ""}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          onLoadedMetadata={(
+            event
+          ) =>
+            preparePreview(
+              event.currentTarget
+            )
+          }
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+        />
+
+        {/* Subtle contrast only */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 to-transparent"
+        />
+
+        {/* Small play symbol */}
+        <div className="absolute bottom-2.5 left-2.5 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-[#FFF8EA]/94 text-[#064E7A] shadow-sm transition-transform duration-300 group-hover:scale-105">
+          <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />
+        </div>
+
+        {/* Index */}
+        <span className="absolute bottom-2.5 right-2.5 rounded-full bg-black/35 px-2 py-1 font-[var(--font-display)] text-[0.55rem] font-extrabold tracking-[0.1em] text-white/82 backdrop-blur-sm">
+          {String(
+            index + 1
+          ).padStart(2, "0")}
+        </span>
+
+        {/* Active marker */}
+        {active && (
+          <motion.div
+            layoutId="documentary-active"
+            aria-hidden
+            className="absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-[#67E8F9] via-[#A5F3FC] to-[#D8A441]"
+          />
+        )}
+      </div>
+
+      {/* Title */}
+      <div className="p-3.5">
+        <div
+          className={`line-clamp-2 font-serif text-sm font-bold leading-[1.35] ${
+            active
+              ? "text-[#FFF8EA]"
+              : "text-[#064E7A]"
+          }`}
+        >
+          {film.title}
+        </div>
+
+        {t(film.caption) && (
+          <div
+            className={`mt-1 line-clamp-1 text-[0.64rem] font-medium ${
+              active
+                ? "text-white/55"
+                : "text-[#526B75]/58"
+            }`}
+          >
+            {t(film.caption)}
+          </div>
+        )}
+      </div>
+    </button>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DOCUMENTARY SELECTOR RAIL
 ───────────────────────────────────────────────────────────── */
 
 function DocumentaryRail({
@@ -323,7 +516,9 @@ function DocumentaryRail({
     direction: 1 | -1
   ) => {
     railRef.current?.scrollBy({
-      left: direction * 300,
+      left:
+        direction *
+        320,
       behavior:
         reduced
           ? "auto"
@@ -333,6 +528,7 @@ function DocumentaryRail({
 
   return (
     <div className="relative mt-5">
+      {/* Navigation */}
       <div className="mb-3 flex justify-end gap-2">
         <button
           type="button"
@@ -359,79 +555,27 @@ function DocumentaryRail({
 
       <div
         ref={railRef}
-        className="scrollbar-none overflow-x-auto pb-2"
+        className="scrollbar-none overflow-x-auto pb-3"
       >
         <div className="flex w-max gap-3">
           {films.map(
-            (film, index) => {
-              const active =
-                index ===
-                selectedIndex;
-
-              return (
-                <button
-                  key={film.id}
-                  type="button"
-                  onClick={() =>
-                    onSelect(
-                      index
-                    )
-                  }
-                  aria-pressed={
-                    active
-                  }
-                  className={`group relative w-[225px] shrink-0 overflow-hidden rounded-[1.15rem] border text-left transition-all duration-250 ${
-                    active
-                      ? "border-[#0891B2]/45 bg-[#064E7A] shadow-[0_12px_30px_rgba(6,78,122,0.15)]"
-                      : "border-[#064E7A]/10 bg-[#FFFDF8] hover:-translate-y-0.5 hover:border-[#0891B2]/28"
-                  }`}
-                >
-                  <div className="relative aspect-video overflow-hidden bg-[#031F2E]">
-                    <video
-                      src={`${
-                        film.url ??
-                        ""
-                      }#t=0.5`}
-                      muted
-                      playsInline
-                      preload="metadata"
-                      className="h-full w-full object-cover"
-                    />
-
-                    <div
-                      aria-hidden
-                      className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent"
-                    />
-
-                    <div className="absolute bottom-2 left-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#FFF8EA]/92 text-[#064E7A]">
-                      <Play className="ml-0.5 h-3 w-3 fill-current" />
-                    </div>
-
-                    <span className="absolute bottom-2 right-2 font-[var(--font-display)] text-[0.58rem] font-extrabold text-white/75">
-                      {String(
-                        index +
-                          1
-                      ).padStart(
-                        2,
-                        "0"
-                      )}
-                    </span>
-                  </div>
-
-                  <div className="p-3.5">
-                    <div
-                      className={`line-clamp-2 font-serif text-sm font-bold leading-[1.35] ${
-                        active
-                          ? "text-[#FFF8EA]"
-                          : "text-[#064E7A]"
-                      }`}
-                    >
-                      {film.title}
-                    </div>
-                  </div>
-                </button>
-              );
-            }
+            (
+              film,
+              index
+            ) => (
+              <DocumentaryThumbnail
+                key={film.id}
+                film={film}
+                index={index}
+                active={
+                  index ===
+                  selectedIndex
+                }
+                onSelect={() =>
+                  onSelect(index)
+                }
+              />
+            )
           )}
         </div>
       </div>
@@ -491,7 +635,6 @@ function LearningFilmRow({
         onClick={onPlay}
         className="group grid w-full grid-cols-[42px_minmax(0,1fr)_38px] items-center gap-3 rounded-[1.1rem] border border-[#064E7A]/9 bg-[#FFFDF8] px-3 py-3 text-left transition-all duration-250 hover:-translate-y-0.5 hover:border-[#0891B2]/28 hover:shadow-[0_10px_26px_rgba(6,78,122,0.07)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2] sm:px-4"
       >
-        {/* Archive sequence */}
         <span className="font-[var(--font-display)] text-[0.72rem] font-extrabold tracking-[0.08em] text-[#0891B2]/60">
           {String(
             index + 1
@@ -547,12 +690,10 @@ export default function FilmLibrary({
   const [
     playing,
     setPlaying,
-  ] = useState<MediaRow | null>(
-    null
-  );
-
-  const reduced =
-    useReducedMotion();
+  ] =
+    useState<MediaRow | null>(
+      null
+    );
 
   const featured =
     documentaries[
@@ -584,11 +725,12 @@ export default function FilmLibrary({
     );
   };
 
-  const collapseLearning = () => {
-    setVisibleLearning(
-      LEARNING_BATCH
-    );
-  };
+  const collapseLearning =
+    () => {
+      setVisibleLearning(
+        LEARNING_BATCH
+      );
+    };
 
   return (
     <div className="space-y-20">
@@ -601,7 +743,6 @@ export default function FilmLibrary({
           aria-label="Documentaries"
           className="relative"
         >
-          {/* Heading */}
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
               <div className="mb-2 flex items-center gap-3">
@@ -626,7 +767,7 @@ export default function FilmLibrary({
             </div>
           </div>
 
-          {/* Screening room */}
+          {/* Featured screening area */}
           {featured && (
             <FeaturedDocumentary
               film={featured}
@@ -644,7 +785,7 @@ export default function FilmLibrary({
             />
           )}
 
-          {/* Film selector */}
+          {/* Hover-preview selector */}
           {documentaries.length >
             1 && (
             <DocumentaryRail
@@ -700,14 +841,11 @@ export default function FilmLibrary({
             </div>
           </div>
 
-          {/* Compact film index */}
           <motion.ul
             layout
             className="grid gap-2.5 lg:grid-cols-2"
           >
-            <AnimatePresence
-              initial={false}
-            >
+            <AnimatePresence initial={false}>
               {shownLearning.map(
                 (
                   film,
@@ -734,7 +872,6 @@ export default function FilmLibrary({
             </AnimatePresence>
           </motion.ul>
 
-          {/* Progressive archive controls */}
           {(hasMoreLearning ||
             canCollapseLearning) && (
             <div className="mt-7 flex flex-wrap items-center justify-between gap-4 border-t border-[#064E7A]/8 pt-5">
@@ -791,9 +928,7 @@ export default function FilmLibrary({
         </section>
       )}
 
-      {/* ────────────────────────────────────────
-          PLAYER
-      ───────────────────────────────────────── */}
+      {/* PLAYER */}
       <AnimatePresence>
         {playing && (
           <FilmPlayer
