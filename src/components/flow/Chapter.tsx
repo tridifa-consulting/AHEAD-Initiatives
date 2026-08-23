@@ -1,7 +1,16 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import {
+  useRef,
+  type ReactNode,
+} from "react";
+import {
+  motion,
+  useInView,
+  useReducedMotion,
+} from "framer-motion";
+
+const ease = [0.22, 1, 0.36, 1] as const;
 
 export default function Chapter({
   slug,
@@ -18,9 +27,22 @@ export default function Chapter({
   tone?: "paper" | "white" | "ink";
   children: ReactNode;
 }) {
-  const ref = useRef<HTMLHeadingElement>(null);
-  const inView = useInView(ref, { once: true, margin: "0px 0px -12% 0px" });
-  const reduced = useReducedMotion();
+  const ref =
+    useRef<HTMLHeadingElement>(
+      null
+    );
+
+  const inView = useInView(
+    ref,
+    {
+      once: true,
+      margin:
+        "0px 0px -10% 0px",
+    }
+  );
+
+  const reduced =
+    useReducedMotion();
 
   const sectionTone =
     tone === "ink"
@@ -59,9 +81,12 @@ export default function Chapter({
   return (
     <section
       id={slug}
-      className={`${sectionTone} relative scroll-mt-20 overflow-hidden py-24 sm:py-32 lg:py-36`}
+      className={`${sectionTone} relative scroll-mt-16 overflow-hidden py-14 sm:scroll-mt-20 sm:py-24 lg:py-32`}
     >
-      {/* Section atmosphere */}
+      {/* ───────────────────────────────────────
+          Section atmosphere
+      ──────────────────────────────────────── */}
+
       <div
         aria-hidden
         className={`pointer-events-none absolute inset-0 ${overlayTone}`}
@@ -73,59 +98,131 @@ export default function Chapter({
         }}
       />
 
-      {/* Quiet paper grid */}
+      {/* ───────────────────────────────────────
+          Quiet paper grid
+      ──────────────────────────────────────── */}
+
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.24]"
+        className="pointer-events-none absolute inset-0 opacity-[0.18] sm:opacity-[0.24]"
         style={{
           backgroundImage:
             tone === "ink"
               ? "linear-gradient(rgba(255,248,234,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,248,234,0.035) 1px, transparent 1px)"
               : "linear-gradient(rgba(185,101,67,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(8,145,178,0.035) 1px, transparent 1px)",
-          backgroundSize: "42px 42px",
+          backgroundSize:
+            "42px 42px",
         }}
       />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Chapter header */}
-        <div className={`mb-14 border-b ${rule} pb-7 sm:mb-18 lg:mb-20`}>
+        {/* ─────────────────────────────────────
+            Chapter header
+
+            Mobile intentionally uses a more compact editorial
+            rhythm. Desktop proportions remain generous.
+        ────────────────────────────────────── */}
+
+        <div
+          className={`mb-8 border-b ${rule} pb-5 sm:mb-12 sm:pb-7 lg:mb-16`}
+        >
+          {/* Chapter number */}
           <motion.div
-            initial={reduced ? {} : { opacity: 0, x: -16 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            className={`mb-3 flex items-center gap-3 font-mono text-[0.72rem] font-extrabold uppercase tracking-[0.34em] ${plate}`}
+            initial={
+              reduced
+                ? {}
+                : {
+                    opacity: 0,
+                    x: -12,
+                  }
+            }
+            animate={
+              inView
+                ? {
+                    opacity: 1,
+                    x: 0,
+                  }
+                : {}
+            }
+            transition={{
+              duration: 0.5,
+              ease,
+            }}
+            className={`mb-2.5 flex items-center gap-2.5 font-mono text-[0.62rem] font-extrabold uppercase tracking-[0.28em] sm:mb-3 sm:gap-3 sm:text-[0.72rem] sm:tracking-[0.34em] ${plate}`}
           >
-            <span>{String(number).padStart(2, "0")}</span>
+            <span>
+              {String(
+                number
+              ).padStart(
+                2,
+                "0"
+              )}
+            </span>
+
             <span
               aria-hidden
               className={
                 tone === "ink"
-                  ? "h-px w-10 bg-[#67E8F9]/55"
-                  : "h-px w-10 bg-[#b96543]/52"
+                  ? "h-px w-8 bg-[#67E8F9]/55 sm:w-10"
+                  : "h-px w-8 bg-[#b96543]/52 sm:w-10"
               }
             />
           </motion.div>
 
+          {/* Chapter title */}
           <motion.h2
             ref={ref}
-            initial={reduced ? {} : { opacity: 0, y: 14 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
+            initial={
+              reduced
+                ? {}
+                : {
+                    opacity: 0,
+                    y: 12,
+                  }
+            }
+            animate={
+              inView
+                ? {
+                    opacity: 1,
+                    y: 0,
+                  }
+                : {}
+            }
             transition={{
-              duration: 0.6,
-              delay: 0.06,
-              ease: [0.22, 1, 0.36, 1],
+              duration: 0.58,
+              delay: 0.05,
+              ease,
             }}
-            className={`max-w-5xl font-serif text-[2.75rem] font-bold leading-[0.95] tracking-[-0.045em] sm:text-5xl lg:text-[4rem] ${titleColor}`}
+            className={`max-w-5xl text-balance font-serif text-[clamp(2.2rem,10.5vw,2.7rem)] font-bold leading-[0.98] tracking-[-0.04em] sm:text-5xl sm:leading-[0.97] lg:text-[4rem] lg:leading-[0.95] ${titleColor}`}
           >
             {title}
           </motion.h2>
 
+          {/* Optional subtitle */}
           {subtitle && (
             <motion.p
-              initial={reduced ? {} : { opacity: 0 }}
-              animate={inView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.5, delay: 0.15 }}
-              className={`mt-4 max-w-3xl text-base font-medium leading-7 sm:text-lg ${sub}`}
+              initial={
+                reduced
+                  ? {}
+                  : {
+                      opacity: 0,
+                      y: 6,
+                    }
+              }
+              animate={
+                inView
+                  ? {
+                      opacity: 1,
+                      y: 0,
+                    }
+                  : {}
+              }
+              transition={{
+                duration: 0.48,
+                delay: 0.13,
+                ease,
+              }}
+              className={`mt-3 max-w-3xl text-[0.95rem] font-medium leading-[1.6] sm:mt-4 sm:text-lg sm:leading-7 ${sub}`}
             >
               {subtitle}
             </motion.p>
