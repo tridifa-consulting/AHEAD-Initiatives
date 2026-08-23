@@ -1,14 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import {
   motion,
-  AnimatePresence,
   useReducedMotion,
 } from "framer-motion";
 import {
   Mail,
-  ChevronDown,
   ArrowUpRight,
   Users,
 } from "lucide-react";
@@ -17,32 +14,32 @@ import { t } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const FIELD_INITIAL = 8;
+/* ─────────────────────────────────────────────────────────────
+   ORGANISATIONAL GROUPS
+
+   Order is intentional and preserves the institutional hierarchy:
+   Board → Project Directors → Core Field Team → Advisors
+───────────────────────────────────────────────────────────── */
 
 const groups: {
   key: PersonRow["group_name"];
   label: string;
-  shortLabel: string;
 }[] = [
   {
     key: "board",
     label: "Board of Directors",
-    shortLabel: "Board",
   },
   {
     key: "project_directors",
     label: "Project Directors",
-    shortLabel: "Project Directors",
   },
   {
     key: "field_team",
     label: "Core Field Team",
-    shortLabel: "Field Team",
   },
   {
     key: "advisors",
     label: "Advisors",
-    shortLabel: "Advisors",
   },
 ];
 
@@ -97,7 +94,7 @@ function Portrait({
 }
 
 /* ─────────────────────────────────────────────────────────────
-   FOUNDER
+   FOUNDER FEATURE
 ───────────────────────────────────────────────────────────── */
 
 function FounderFeature({
@@ -157,7 +154,7 @@ function FounderFeature({
       />
 
       <div className="relative grid gap-7 p-7 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:p-9 lg:p-10">
-        {/* Founder portrait */}
+        {/* Portrait */}
         <div className="relative w-fit">
           <div
             aria-hidden
@@ -178,8 +175,8 @@ function FounderFeature({
           </div>
         </div>
 
+        {/* Founder information */}
         <figcaption>
-          {/* Founder label */}
           <div className="mb-3 flex items-center gap-3">
             <span className="h-px w-9 bg-[#67E8F9]/65" />
 
@@ -247,34 +244,36 @@ function PersonCard({
               y: 14,
             }
       }
-      animate={{
+      whileInView={{
         opacity: 1,
         y: 0,
       }}
-      exit={{
-        opacity: 0,
+      viewport={{
+        once: true,
+        amount: 0,
+        margin: "0px 0px -5% 0px",
       }}
       transition={{
-        duration: 0.38,
-        delay: Math.min(index, 8) * 0.035,
+        duration: 0.4,
+        delay: Math.min(index, 7) * 0.03,
         ease,
       }}
       className="h-full"
     >
       <article className="group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 bg-[#FFFDF8] p-5 shadow-[0_8px_28px_rgba(6,78,122,0.055)] transition-all duration-300 hover:-translate-y-1 hover:border-[#0891B2]/28 hover:shadow-[0_18px_42px_rgba(6,78,122,0.11)] sm:p-6">
-        {/* Top aqua rule */}
+        {/* Aqua top rule */}
         <div
           aria-hidden
           className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#064E7A] via-[#0891B2] to-[#67E8F9]"
         />
 
-        {/* Quiet decorative circle */}
+        {/* Quiet corner motif */}
         <div
           aria-hidden
           className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full border border-[#0891B2]/8 bg-[#67E8F9]/5 transition-transform duration-500 group-hover:scale-110"
         />
 
-        {/* Person identity */}
+        {/* Identity */}
         <div className="relative flex items-start gap-4">
           <div className="relative shrink-0">
             <div className="overflow-hidden rounded-full border-2 border-[#FFFDF8] shadow-[0_5px_16px_rgba(6,78,122,0.12)] ring-1 ring-[#0891B2]/14">
@@ -305,7 +304,7 @@ function PersonCard({
           </p>
         )}
 
-        {/* Contact */}
+        {/* Email */}
         {person.email && (
           <div className="relative mt-auto pt-5">
             <div className="mb-3 h-px w-full bg-[#064E7A]/8" />
@@ -331,6 +330,96 @@ function PersonCard({
 }
 
 /* ─────────────────────────────────────────────────────────────
+   PEOPLE GROUP
+───────────────────────────────────────────────────────────── */
+
+function PeopleGroup({
+  label,
+  members,
+  portraits,
+  groupIndex,
+}: {
+  label: string;
+  members: PersonRow[];
+  portraits: Record<string, string>;
+  groupIndex: number;
+}) {
+  const reduced = useReducedMotion();
+
+  return (
+    <motion.section
+      aria-label={label}
+      initial={
+        reduced
+          ? {}
+          : {
+              opacity: 0,
+              y: 10,
+            }
+      }
+      whileInView={{
+        opacity: 1,
+        y: 0,
+      }}
+      viewport={{
+        once: true,
+        amount: 0,
+      }}
+      transition={{
+        duration: 0.45,
+        delay: groupIndex * 0.04,
+        ease,
+      }}
+    >
+      {/* Group header */}
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#064E7A]/9 pb-5">
+        <div>
+          <h4 className="font-serif text-[1.35rem] font-bold tracking-[-0.025em] text-[#064E7A] sm:text-[1.55rem]">
+            {label}
+          </h4>
+
+          <p className="mt-1.5 font-[var(--font-display)] text-[0.6rem] font-bold uppercase tracking-[0.18em] text-[#526B75]/52">
+            {members.length}{" "}
+            {members.length === 1
+              ? "member"
+              : "members"}
+          </p>
+        </div>
+
+        {/* Quiet category sequence */}
+        <span
+          aria-hidden
+          className="font-[var(--font-display)] text-[2.6rem] font-extrabold leading-none tracking-[-0.06em] text-[#0891B2]/8"
+        >
+          {String(
+            groupIndex + 1
+          ).padStart(2, "0")}
+        </span>
+      </div>
+
+      {/* Every profile is visible */}
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {members.map(
+          (person, index) => (
+            <PersonCard
+              key={person.id}
+              person={person}
+              portrait={
+                portraits[
+                  person.photo_media_id ??
+                    ""
+                ]
+              }
+              index={index}
+            />
+          )
+        )}
+      </ul>
+    </motion.section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
    MAIN PEOPLE DIRECTORY
 ───────────────────────────────────────────────────────────── */
 
@@ -349,83 +438,39 @@ export default function PeopleGrid({
   );
 
   /*
-   * Only expose groups that actually contain people.
-   * Nothing is invented if a group is absent from the CMS.
+   * Preserve only categories that actually exist in the supplied data.
+   * No category or person is invented.
    */
-  const availableGroups = useMemo(
-    () =>
-      groups
-        .map((group) => ({
-          ...group,
-          members: people.filter(
-            (person) =>
-              person.group_name === group.key
-          ),
-        }))
-        .filter(
-          (group) =>
-            group.members.length > 0
-        ),
-    [people]
-  );
-
-  const [activeGroup, setActiveGroup] =
-    useState<PersonRow["group_name"]>(
-      availableGroups[0]?.key ?? "board"
+  const populatedGroups = groups
+    .map((group) => ({
+      ...group,
+      members: people.filter(
+        (person) =>
+          person.group_name === group.key
+      ),
+    }))
+    .filter(
+      (group) =>
+        group.members.length > 0
     );
 
-  const [showAllFieldTeam, setShowAllFieldTeam] =
-    useState(false);
-
-  const active =
-    availableGroups.find(
-      (group) =>
-        group.key === activeGroup
-    ) ?? availableGroups[0];
-
-  if (!founder && availableGroups.length === 0) {
+  if (
+    !founder &&
+    populatedGroups.length === 0
+  ) {
     return null;
   }
 
-  const visibleMembers =
-    active?.key === "field_team" &&
-    !showAllFieldTeam
-      ? active.members.slice(
-          0,
-          FIELD_INITIAL
-        )
-      : active?.members ?? [];
-
-  const hiddenFieldMembers =
-    active?.key === "field_team"
-      ? Math.max(
-          0,
-          active.members.length -
-            FIELD_INITIAL
-        )
-      : 0;
-
   const totalPeople =
-    availableGroups.reduce(
-      (sum, group) =>
-        sum + group.members.length,
+    populatedGroups.reduce(
+      (total, group) =>
+        total +
+        group.members.length,
       0
     );
 
-  const selectGroup = (
-    key: PersonRow["group_name"]
-  ) => {
-    setActiveGroup(key);
-
-    /*
-     * Return field-team progressive disclosure to its
-     * compact state when navigating between groups.
-     */
-    setShowAllFieldTeam(false);
-  };
-
   return (
-    <div className="space-y-16">
+    <div className="space-y-16 lg:space-y-20">
       {/* ───────────────────────────────────────
           FOUNDER
       ──────────────────────────────────────── */}
@@ -443,10 +488,34 @@ export default function PeopleGrid({
       {/* ───────────────────────────────────────
           OUR PEOPLE
       ──────────────────────────────────────── */}
-      {availableGroups.length > 0 && (
-        <section aria-label="AHEAD team and governance">
-          {/* Directory header */}
-          <div className="mb-7 grid gap-5 border-b border-[#064E7A]/10 pb-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      {populatedGroups.length > 0 && (
+        <section
+          aria-label="AHEAD team and governance"
+          className="relative"
+        >
+          {/* Overall directory heading */}
+          <motion.div
+            initial={
+              reduced
+                ? {}
+                : {
+                    opacity: 0,
+                    y: 12,
+                  }
+            }
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
+            viewport={{
+              once: true,
+            }}
+            transition={{
+              duration: 0.5,
+              ease,
+            }}
+            className="mb-10 grid gap-5 border-b border-[#064E7A]/10 pb-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end"
+          >
             <div>
               <div className="mb-2 flex items-center gap-3">
                 <span className="h-px w-8 bg-[#0891B2]/55" />
@@ -461,6 +530,7 @@ export default function PeopleGrid({
               </h3>
             </div>
 
+            {/* Total count */}
             <div className="flex items-center gap-3 lg:text-right">
               <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[#0891B2]/12 bg-[#EAFBFD] text-[#075985]">
                 <Users className="h-4 w-4" />
@@ -476,201 +546,33 @@ export default function PeopleGrid({
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* ─────────────────────────────────────
-              GROUP NAVIGATION
+              ALL GROUPS — VISIBLE SEQUENTIALLY
           ────────────────────────────────────── */}
-          <div
-            role="tablist"
-            aria-label="Team groups"
-            className="scrollbar-none mb-8 flex gap-2 overflow-x-auto pb-2"
-          >
-            {availableGroups.map(
-              (group) => {
-                const current =
-                  active?.key ===
-                  group.key;
-
-                return (
-                  <button
-                    key={group.key}
-                    type="button"
-                    role="tab"
-                    aria-selected={current}
-                    onClick={() =>
-                      selectGroup(
-                        group.key
-                      )
-                    }
-                    className={`relative shrink-0 overflow-hidden rounded-full border px-4 py-2.5 font-[var(--font-display)] text-[0.7rem] font-bold transition-all duration-250 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2] ${
-                      current
-                        ? "border-[#064E7A] text-white shadow-[0_8px_20px_rgba(6,78,122,0.14)]"
-                        : "border-[#064E7A]/11 bg-[#FFFDF8] text-[#425A64] hover:border-[#0891B2]/25 hover:bg-[#EAFBFD]/55"
-                    }`}
-                  >
-                    {current && (
-                      <motion.span
-                        layoutId="people-group"
-                        className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-[#064E7A] to-[#075985]"
-                        transition={{
-                          duration: 0.25,
-                          ease,
-                        }}
-                      />
-                    )}
-
-                    <span className="relative">
-                      {group.shortLabel}
-
-                      <span
-                        className={`ml-1.5 ${
-                          current
-                            ? "text-white/58"
-                            : "text-[#526B75]/42"
-                        }`}
-                      >
-                        {group.members.length}
-                      </span>
-                    </span>
-                  </button>
-                );
-              }
-            )}
-          </div>
-
-          {/* Active group context */}
-          {active && (
-            <div className="mb-6 flex items-end justify-between gap-5">
-              <div>
-                <motion.h4
-                  key={active.key}
-                  initial={
-                    reduced
-                      ? {}
-                      : {
-                          opacity: 0,
-                          x: -8,
-                        }
+          <div className="space-y-14 lg:space-y-16">
+            {populatedGroups.map(
+              (
+                group,
+                groupIndex
+              ) => (
+                <PeopleGroup
+                  key={group.key}
+                  label={group.label}
+                  members={
+                    group.members
                   }
-                  animate={{
-                    opacity: 1,
-                    x: 0,
-                  }}
-                  transition={{
-                    duration: 0.3,
-                    ease,
-                  }}
-                  className="font-serif text-[1.3rem] font-bold text-[#064E7A]"
-                >
-                  {active.label}
-                </motion.h4>
-
-                <p className="mt-1 text-[0.67rem] font-semibold uppercase tracking-[0.14em] text-[#526B75]/52">
-                  {active.members.length}{" "}
-                  {active.members.length === 1
-                    ? "member"
-                    : "members"}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* ─────────────────────────────────────
-              PEOPLE GRID
-          ────────────────────────────────────── */}
-          <AnimatePresence mode="wait">
-            {active && (
-              <motion.div
-                key={active.key}
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{
-                  opacity: 1,
-                }}
-                exit={{
-                  opacity: 0,
-                }}
-                transition={{
-                  duration: 0.2,
-                }}
-              >
-                <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  <AnimatePresence initial={false}>
-                    {visibleMembers.map(
-                      (person, index) => (
-                        <PersonCard
-                          key={person.id}
-                          person={person}
-                          portrait={
-                            portraits[
-                              person.photo_media_id ??
-                                ""
-                            ]
-                          }
-                          index={index}
-                        />
-                      )
-                    )}
-                  </AnimatePresence>
-                </ul>
-
-                {/* Field-team progressive disclosure */}
-                {active.key === "field_team" &&
-                  active.members.length >
-                    FIELD_INITIAL && (
-                    <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[#064E7A]/8 pt-5">
-                      <div className="text-[0.68rem] font-medium text-[#526B75]/58">
-                        Showing{" "}
-                        {showAllFieldTeam
-                          ? active.members.length
-                          : Math.min(
-                              FIELD_INITIAL,
-                              active.members.length
-                            )}{" "}
-                        of{" "}
-                        {active.members.length}{" "}
-                        team members
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowAllFieldTeam(
-                            (current) =>
-                              !current
-                          )
-                        }
-                        className="group inline-flex min-h-10 items-center gap-2 rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] px-4 py-2 font-[var(--font-display)] text-[0.68rem] font-bold text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/32 hover:bg-[#EAFBFD]"
-                      >
-                        {showAllFieldTeam
-                          ? "Show fewer"
-                          : `View all ${active.members.length} team members`}
-
-                        <motion.span
-                          animate={
-                            reduced
-                              ? {}
-                              : {
-                                  rotate:
-                                    showAllFieldTeam
-                                      ? 180
-                                      : 0,
-                                }
-                          }
-                          transition={{
-                            duration: 0.2,
-                          }}
-                        >
-                          <ChevronDown className="h-3.5 w-3.5" />
-                        </motion.span>
-                      </button>
-                    </div>
-                  )}
-              </motion.div>
+                  portraits={
+                    portraits
+                  }
+                  groupIndex={
+                    groupIndex
+                  }
+                />
+              )
             )}
-          </AnimatePresence>
+          </div>
         </section>
       )}
     </div>
