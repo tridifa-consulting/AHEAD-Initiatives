@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Wheat,
   GraduationCap,
@@ -9,33 +9,40 @@ import {
   Landmark,
   ChevronDown,
   ArrowUp,
-} from 'lucide-react';
+} from "lucide-react";
+import {
+  motion,
+  useReducedMotion,
+} from "framer-motion";
+import ChapterNav, {
+  type Chapter as NavChapter,
+} from "@/components/flow/ChapterNav";
 
 /* ───────────────────────── Design Tokens ───────────────────────── */
 const COLOR = {
-  primary: '#1E3F66',
-  secondary: '#2d6a4f',
-  accent: '#e07a5f',
-  bg: '#ffffff',
-  bgAlt: '#f9fafb',
-  text: '#374151', // gray-700
-  textLight: '#6b7280', // gray-500
+  primary: "#064E7A",
+  secondary: "#0891B2",
+  accent: "#B96543",
+  gold: "#D8A441",
+  aqua: "#67E8F9",
+  cream: "#FFF8EA",
+  paper: "#FFFDF8",
+  bg: "#ffffff",
+  bgAlt: "#FFF8EA",
+  text: "#243841",
+  textLight: "#526B75",
 } as const;
 
-/* ───────────────────────── Section Meta ─────────────────────────── */
-interface SectionMeta {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-}
-
-const sections: SectionMeta[] = [
-  { id: 'hunger', label: 'Hunger', icon: <Wheat className="w-4 h-4" /> },
-  { id: 'education', label: 'Education', icon: <GraduationCap className="w-4 h-4" /> },
-  { id: 'culture', label: 'Culture', icon: <Palette className="w-4 h-4" /> },
-  { id: 'srijangan', label: 'Srijangan', icon: <Sparkles className="w-4 h-4" /> },
-  { id: 'strategy', label: 'Strategy', icon: <Landmark className="w-4 h-4" /> },
+/* ───────────────────────── Chapter Navigation ───────────────────── */
+const initiativeChapters: NavChapter[] = [
+  { slug: "hunger", label: "Hunger" },
+  { slug: "education", label: "Education" },
+  { slug: "culture", label: "Culture" },
+  { slug: "srijangan", label: "Srijangan" },
+  { slug: "strategy", label: "Strategy" },
 ];
+
+const ease = [0.22, 1, 0.36, 1] as const;
 
 /* ───────────────────────── Reusable Components ──────────────────── */
 
@@ -47,102 +54,88 @@ function SectionHeading({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-4 mb-8">
-      <span
-        className="flex items-center justify-center w-12 h-12 rounded-xl shadow-md text-white"
-        style={{ backgroundColor: COLOR.primary }}
+    <div className="mb-10">
+      <div
+        aria-hidden
+        className="mb-5 flex items-center gap-3"
       >
-        {icon}
-      </span>
-      <h2
-        className="text-3xl md:text-4xl font-bold tracking-tight"
-        style={{ color: COLOR.primary }}
-      >
-        {children}
-      </h2>
+        <span className="h-px w-12 bg-[#0891B2]/55" />
+        <span className="h-1.5 w-1.5 rotate-45 bg-[#D8A441]" />
+        <span className="h-px w-20 bg-gradient-to-r from-[#D8A441]/35 to-transparent" />
+      </div>
+
+      <div className="flex items-start gap-4 sm:gap-5">
+        <span className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#0891B2]/18 bg-[#EAFBFD] text-[#064E7A] shadow-[0_6px_18px_rgba(6,78,122,0.07)]">
+          {icon}
+        </span>
+
+        <h2 className="max-w-4xl font-serif text-[2rem] font-bold leading-[1.08] tracking-[-0.035em] text-[#064E7A] sm:text-[2.55rem] lg:text-[3rem]">
+          {children}
+        </h2>
+      </div>
     </div>
   );
 }
 
-function SubHeading({ children }: { children: React.ReactNode }) {
+function SubHeading({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <h3
-      className="text-xl md:text-2xl font-semibold mt-10 mb-4"
-      style={{ color: COLOR.secondary }}
-    >
-      {children}
-    </h3>
+    <div className="mt-12 mb-6">
+      <div
+        aria-hidden
+        className="mb-3 h-[2px] w-10 bg-gradient-to-r from-[#B96543] to-[#D8A441]"
+      />
+
+      <h3 className="max-w-4xl font-serif text-[1.35rem] font-bold leading-[1.35] tracking-[-0.02em] text-[#064E7A] sm:text-[1.6rem]">
+        {children}
+      </h3>
+    </div>
   );
 }
 
-function Paragraph({ children }: { children: React.ReactNode }) {
+function Paragraph({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <p className="text-base md:text-lg leading-relaxed text-gray-700 mb-6">
+    <p className="mb-0 text-[0.96rem] font-medium leading-[1.9] text-[#344F59] sm:text-[1.02rem]">
       {children}
     </p>
   );
 }
 
-function AccentCard({ children }: { children: React.ReactNode }) {
+function AccentCard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div
-      className="border-l-4 rounded-r-xl bg-white shadow-sm p-6 md:p-8 mb-8"
-      style={{ borderColor: COLOR.accent }}
-    >
-      {children}
+    <div className="relative h-full overflow-hidden rounded-[1.55rem] border border-[#064E7A]/10 bg-[#FFFDF8] p-7 shadow-[0_12px_38px_rgba(6,78,122,0.055)] sm:p-8">
+      <div
+        aria-hidden
+        className="absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-[#0891B2] via-[#67E8F9] to-[#D8A441]"
+      />
+      <div className="relative">
+        {children}
+      </div>
     </div>
   );
 }
 
 function Divider() {
   return (
-    <div className="flex items-center gap-4 my-10">
-      <div className="flex-1 h-px bg-gray-200" />
-      <span
-        className="w-2 h-2 rounded-full"
-        style={{ backgroundColor: COLOR.accent }}
-      />
-      <div className="flex-1 h-px bg-gray-200" />
-    </div>
-  );
-}
-
-/* ───────────────────────── Sticky Jump Nav ──────────────────────── */
-
-function JumpNav({ activeId }: { activeId: string }) {
-  return (
-    <nav
-      className="sticky top-0 z-40 border-b backdrop-blur-md bg-white/80"
-      aria-label="Jump to section"
+    <div
+      aria-hidden
+      className="my-12 flex items-center gap-4"
     >
-      <div className="max-w-7xl mx-auto px-4">
-        <ul className="flex items-center gap-1 overflow-x-auto py-3 scrollbar-hide">
-          {sections.map((s) => {
-            const isActive = activeId === s.id;
-            return (
-              <li key={s.id}>
-                <a
-                  href={`#${s.id}`}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                    isActive
-                      ? 'text-white shadow-md'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                  style={
-                    isActive
-                      ? { backgroundColor: COLOR.primary }
-                      : undefined
-                  }
-                >
-                  {s.icon}
-                  {s.label}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </nav>
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#064E7A]/12" />
+      <span className="h-1.5 w-1.5 rotate-45 bg-[#D8A441]" />
+      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#064E7A]/12" />
+    </div>
   );
 }
 
@@ -150,24 +143,39 @@ function JumpNav({ activeId }: { activeId: string }) {
 
 function BackToTop() {
   const [visible, setVisible] = useState(false);
+  const reduced = useReducedMotion();
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 600);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const onScroll = () => setVisible(window.scrollY > 700);
+    onScroll();
+
+    window.addEventListener("scroll", onScroll, {
+      passive: true,
+    });
+
+    return () =>
+      window.removeEventListener("scroll", onScroll);
   }, []);
 
   if (!visible) return null;
 
   return (
-    <button
-      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      className="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white transition-transform hover:scale-110"
-      style={{ backgroundColor: COLOR.primary }}
+    <motion.button
+      type="button"
+      onClick={() =>
+        window.scrollTo({
+          top: 0,
+          behavior: reduced ? "auto" : "smooth",
+        })
+      }
+      initial={reduced ? {} : { opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={reduced ? {} : { y: -2 }}
       aria-label="Back to top"
+      className="fixed bottom-6 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-[#67E8F9]/25 bg-[#064E7A]/95 text-[#FFF8EA] shadow-[0_12px_34px_rgba(6,78,122,0.24)] backdrop-blur-md transition-colors hover:bg-[#075985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#67E8F9] sm:bottom-8 sm:right-8"
     >
-      <ArrowUp className="w-5 h-5" />
-    </button>
+      <ArrowUp className="h-4 w-4" />
+    </motion.button>
   );
 }
 
@@ -176,78 +184,118 @@ function BackToTop() {
    ═══════════════════════════════════════════════════════════════════ */
 
 export default function InitiativesPage() {
-  /* ── Track active section for jump‑nav highlight ── */
-  const [activeId, setActiveId] = useState('hunger');
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting);
-        if (visible.length > 0) {
-          setActiveId(visible[0].target.id);
-        }
-      },
-      { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
-    );
-
-    sections.forEach((s) => {
-      const el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  const reduced = useReducedMotion();
 
   return (
-    <main className="font-[Inter] antialiased">
+    <main className="bg-[#FFF8EA] antialiased">
+      {/* ════════════════════ CHAPTER NAVIGATION ════════════════════ */}
+      <ChapterNav chapters={initiativeChapters} />
+
       {/* ════════════════════ HERO BANNER ════════════════════ */}
-      <section className="relative overflow-hidden">
-        {/* Background gradient */}
+      <section
+        id="top"
+        className="relative isolate overflow-hidden bg-[#053B5E]"
+      >
+        {/* Deep institutional background */}
         <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(135deg, ${COLOR.primary} 0%, #163352 50%, #0f2540 100%)`,
-          }}
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(circle_at_82%_14%,rgba(103,232,249,0.14),transparent_24rem),radial-gradient(circle_at_8%_100%,rgba(216,164,65,0.10),transparent_24rem),linear-gradient(135deg,#053B5E_0%,#064E7A_52%,#073B56_100%)]"
         />
-        {/* Decorative circles */}
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-10 bg-white" />
-        <div className="absolute -bottom-20 -left-20 w-72 h-72 rounded-full opacity-5 bg-white" />
-        {/* Subtle grid pattern */}
+
+        {/* Quiet archival grid */}
         <div
-          className="absolute inset-0 opacity-[0.04]"
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.11]"
           style={{
             backgroundImage:
-              'radial-gradient(circle, #ffffff 1px, transparent 1px)',
-            backgroundSize: '30px 30px',
+              "linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
           }}
         />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-6 py-28 md:py-36 text-center">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight mb-6">
-            Our Initiatives
-          </h1>
-          <p className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
-            Addressing hunger, transforming education, and preserving culture
-            through local self-governance.
-          </p>
-          {/* Scroll indicator */}
-          <div className="mt-12 flex justify-center animate-bounce">
-            <ChevronDown className="w-6 h-6 text-blue-200" />
+        {/* Fine manuscript rule */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#67E8F9] via-[#0891B2] to-[#D8A441]"
+        />
+
+        <div className="relative z-10 mx-auto flex min-h-[64svh] max-w-7xl items-end px-4 pb-16 pt-24 sm:px-6 sm:pb-20 lg:px-8 lg:pb-24">
+          <div className="max-w-5xl">
+            <motion.div
+              initial={reduced ? {} : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.55,
+                ease,
+              }}
+              className="mb-6 flex items-center gap-3"
+              aria-hidden
+            >
+              <span className="h-px w-10 bg-[#67E8F9]/80" />
+              <span className="h-1.5 w-1.5 rotate-45 bg-[#D8A441]" />
+            </motion.div>
+
+            <motion.h1
+              initial={reduced ? {} : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.7,
+                delay: 0.08,
+                ease,
+              }}
+              className="max-w-4xl font-serif text-[3.25rem] font-bold leading-[0.98] tracking-[-0.055em] text-[#FFF8EA] sm:text-[4.4rem] lg:text-[5.7rem]"
+            >
+              Our Initiatives
+            </motion.h1>
+
+            <motion.p
+              initial={reduced ? {} : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.62,
+                delay: 0.2,
+                ease,
+              }}
+              className="mt-7 max-w-3xl text-[1rem] font-medium leading-[1.85] text-white/76 sm:text-[1.14rem]"
+            >
+              Addressing hunger, transforming education, and preserving culture
+              through local self-governance.
+            </motion.p>
+
+            <motion.a
+              href="#hunger"
+              aria-label="Continue to Addressing Hunger"
+              initial={reduced ? {} : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{
+                duration: 0.5,
+                delay: 0.42,
+              }}
+              className="mt-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/[0.04] text-[#B9F6FF] transition-colors hover:border-[#67E8F9]/45 hover:bg-[#67E8F9]/10"
+            >
+              <motion.span
+                animate={reduced ? {} : { y: [0, 3, 0] }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                <ChevronDown className="h-4 w-4" />
+              </motion.span>
+            </motion.a>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════ JUMP NAVIGATION ════════════════════ */}
-      <JumpNav activeId={activeId} />
-
       {/* ════════════════════ SECTION 2 — HUNGER ════════════════════ */}
-      <section id="hunger" className="bg-white py-16 md:py-20">
-        <div className="max-w-6xl mx-auto px-6">
+      <section id="hunger" className="relative overflow-hidden bg-[#FFF8EA] py-20 md:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading icon={<Wheat className="w-6 h-6" />}>
             Addressing Hunger
           </SectionHeading>
 
-          <div className="grid lg:grid-cols-2 gap-8 mb-10">
+          <div className="mb-10 grid gap-6 lg:grid-cols-2">
             <AccentCard>
               <Paragraph>
                 Inspite of the economic growth that India has witnessed, Eastern
@@ -284,7 +332,7 @@ export default function InitiativesPage() {
           </SubHeading>
 
           <div
-            className="rounded-xl p-6 md:p-8 border-l-4"
+            className="relative overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 p-7 shadow-[0_10px_32px_rgba(6,78,122,0.045)] md:p-9"
             style={{
               borderColor: COLOR.secondary,
               backgroundColor: COLOR.bgAlt,
@@ -304,16 +352,15 @@ export default function InitiativesPage() {
       {/* ════════════════════ SECTION 3 — EDUCATION ════════════════════ */}
       <section
         id="education"
-        className="py-16 md:py-20"
-        style={{ backgroundColor: COLOR.bgAlt }}
+        className="relative overflow-hidden bg-white py-20 md:py-28"
       >
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading icon={<GraduationCap className="w-6 h-6" />}>
             Education Initiative
           </SectionHeading>
 
           {/* First two paragraphs side by side on large screens */}
-          <div className="grid lg:grid-cols-2 gap-8 mb-10">
+          <div className="mb-10 grid gap-6 lg:grid-cols-2">
             <AccentCard>
               <Paragraph>
                 Over the two to three decades that many at Ahead have been
@@ -370,7 +417,7 @@ export default function InitiativesPage() {
 
           <div className="space-y-6">
             <div
-              className="rounded-xl p-6 md:p-8 border-l-4"
+              className="relative overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 p-7 shadow-[0_10px_32px_rgba(6,78,122,0.045)] md:p-9"
               style={{
                 borderColor: COLOR.secondary,
                 backgroundColor: '#ffffff',
@@ -391,7 +438,7 @@ export default function InitiativesPage() {
             </div>
 
             <div
-              className="rounded-xl p-6 md:p-8 border-l-4"
+              className="relative overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 p-7 shadow-[0_10px_32px_rgba(6,78,122,0.045)] md:p-9"
               style={{
                 borderColor: COLOR.secondary,
                 backgroundColor: '#ffffff',
@@ -411,7 +458,7 @@ export default function InitiativesPage() {
             </div>
 
             <div
-              className="rounded-xl p-6 md:p-8 border-l-4"
+              className="relative overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 p-7 shadow-[0_10px_32px_rgba(6,78,122,0.045)] md:p-9"
               style={{
                 borderColor: COLOR.accent,
                 backgroundColor: '#ffffff',
@@ -434,13 +481,13 @@ export default function InitiativesPage() {
       </section>
 
       {/* ════════════════════ SECTION 4 — CULTURE ════════════════════ */}
-      <section id="culture" className="bg-white py-16 md:py-20">
-        <div className="max-w-6xl mx-auto px-6">
+      <section id="culture" className="relative overflow-hidden bg-[#FFF8EA] py-20 md:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading icon={<Palette className="w-6 h-6" />}>
             Culture and Development
           </SectionHeading>
 
-          <div className="grid lg:grid-cols-3 gap-6 mb-10">
+          <div className="mb-10 grid gap-6 lg:grid-cols-3">
             <AccentCard>
               <Paragraph>
                 Culture has been said to be an indivisible part of development
@@ -483,9 +530,9 @@ export default function InitiativesPage() {
 
           <SubHeading>School Engagement Programme</SubHeading>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid gap-6 md:grid-cols-2">
             <div
-              className="rounded-xl p-6 md:p-8 border-l-4"
+              className="relative overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 p-7 shadow-[0_10px_32px_rgba(6,78,122,0.045)] md:p-9"
               style={{
                 borderColor: COLOR.secondary,
                 backgroundColor: COLOR.bgAlt,
@@ -502,7 +549,7 @@ export default function InitiativesPage() {
               </Paragraph>
             </div>
             <div
-              className="rounded-xl p-6 md:p-8 border-l-4"
+              className="relative overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 p-7 shadow-[0_10px_32px_rgba(6,78,122,0.045)] md:p-9"
               style={{
                 borderColor: COLOR.secondary,
                 backgroundColor: COLOR.bgAlt,
@@ -531,10 +578,9 @@ export default function InitiativesPage() {
       {/* ════════════════════ SECTION 5 — SRIJANGAN ════════════════════ */}
       <section
         id="srijangan"
-        className="py-16 md:py-20"
-        style={{ backgroundColor: COLOR.bgAlt }}
+        className="relative overflow-hidden bg-white py-20 md:py-28"
       >
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading icon={<Sparkles className="w-6 h-6" />}>
             &lsquo;Srijangan&rsquo; — An Open Creative Learning Space for All
           </SectionHeading>
@@ -571,7 +617,7 @@ export default function InitiativesPage() {
             </AccentCard>
 
             <div
-              className="rounded-xl p-6 md:p-8 border-l-4 bg-white shadow-sm"
+              className="relative overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 bg-[#FFFDF8] p-7 shadow-[0_12px_36px_rgba(6,78,122,0.06)] md:p-9"
               style={{ borderColor: COLOR.accent }}
             >
               <div className="flex items-start gap-4">
@@ -599,13 +645,13 @@ export default function InitiativesPage() {
       </section>
 
       {/* ════════════════════ SECTION 6 — STRATEGY ════════════════════ */}
-      <section id="strategy" className="bg-white py-16 md:py-20">
-        <div className="max-w-6xl mx-auto px-6">
+      <section id="strategy" className="relative overflow-hidden bg-[#FFF8EA] py-20 md:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading icon={<Landmark className="w-6 h-6" />}>
             A Strategy of Strengthening Local Self Governance
           </SectionHeading>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-10">
+          <div className="mb-10 grid gap-6 md:grid-cols-2">
             <AccentCard>
               <Paragraph>
                 Our activities are based on the fundamental strategy of
@@ -631,9 +677,9 @@ export default function InitiativesPage() {
           {/* ── CSO - Panchayat Partnerships ── */}
           <SubHeading>CSO - Panchayat Partnerships</SubHeading>
 
-          <div className="space-y-6 mb-10">
+          <div className="mb-10 space-y-6">
             <div
-              className="rounded-xl p-6 md:p-8 border-l-4"
+              className="relative overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 p-7 shadow-[0_10px_32px_rgba(6,78,122,0.045)] md:p-9"
               style={{
                 borderColor: COLOR.secondary,
                 backgroundColor: COLOR.bgAlt,
@@ -655,7 +701,7 @@ export default function InitiativesPage() {
             </div>
 
             <div
-              className="rounded-xl p-6 md:p-8 border-l-4"
+              className="relative overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 p-7 shadow-[0_10px_32px_rgba(6,78,122,0.045)] md:p-9"
               style={{
                 borderColor: COLOR.secondary,
                 backgroundColor: COLOR.bgAlt,
@@ -684,7 +730,7 @@ export default function InitiativesPage() {
             Local Self Governance Approach as a development strategy for NGOs
           </SubHeading>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-10">
+          <div className="mb-10 grid gap-6 md:grid-cols-2">
             <AccentCard>
               <Paragraph>
                 Ahead Initiatives believes that a local self governance approach
@@ -714,9 +760,9 @@ export default function InitiativesPage() {
             Corporate - Local Self Government Partnerships
           </SubHeading>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-10">
+          <div className="mb-10 grid gap-6 md:grid-cols-2">
             <div
-              className="rounded-xl p-6 md:p-8 border-l-4"
+              className="relative overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 p-7 shadow-[0_10px_32px_rgba(6,78,122,0.045)] md:p-9"
               style={{
                 borderColor: COLOR.accent,
                 backgroundColor: COLOR.bgAlt,
@@ -732,7 +778,7 @@ export default function InitiativesPage() {
               </Paragraph>
             </div>
             <div
-              className="rounded-xl p-6 md:p-8 border-l-4"
+              className="relative overflow-hidden rounded-[1.5rem] border border-[#064E7A]/10 p-7 shadow-[0_10px_32px_rgba(6,78,122,0.045)] md:p-9"
               style={{
                 borderColor: COLOR.accent,
                 backgroundColor: COLOR.bgAlt,
@@ -757,14 +803,14 @@ export default function InitiativesPage() {
           <SubHeading>Strategy of a tripartite partnership</SubHeading>
 
           <div
-            className="rounded-xl p-6 md:p-8 mb-6 text-center border-2"
+            className="mb-6 rounded-[1.5rem] border border-[#064E7A]/14 bg-[#EAFBFD]/55 p-7 text-center shadow-[0_10px_30px_rgba(6,78,122,0.05)] md:p-9"
             style={{
               borderColor: COLOR.primary,
               backgroundColor: `${COLOR.primary}08`,
             }}
           >
             <p
-              className="text-lg md:text-xl font-semibold"
+              className="font-serif text-lg font-bold leading-relaxed md:text-xl"
               style={{ color: COLOR.primary }}
             >
               Corporate — LSGI (Panchayati Raj Institution) Partnerships
