@@ -91,6 +91,7 @@ function Lightbox({
       </motion.div>
 
       <button
+        type="button"
         onClick={onClose}
         aria-label="Close"
         className="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/30 text-white backdrop-blur-md transition-all duration-200 hover:border-[#67E8F9]/55 hover:bg-[#064E7A]/70 hover:text-[#B9F6FF]"
@@ -104,11 +105,16 @@ function Lightbox({
 /* ─────────────────────────────────────────────────────────────
    FIELD STORY STRIP
 
-   Static by default.
+   The marquee track is permanently present but PAUSED initially.
 
-   Play starts automatic movement for this strip only.
-   Pause stops it.
-   Manual navigation pauses automatic movement.
+   Play:
+   continuous seamless right-to-left movement
+
+   Pause:
+   freezes exactly at the current position
+
+   Manual navigation:
+   pauses the marquee first, then scrolls manually
 ───────────────────────────────────────────────────────────── */
 
 export default function GalleryFilmstrip({
@@ -123,68 +129,59 @@ export default function GalleryFilmstrip({
   const [lightbox, setLightbox] =
     useState<MediaRow | null>(null);
 
-  const [playing, setPlaying] =
-    useState(false);
+  /*
+   * IMPORTANT:
+   * The initial state is false.
+   * Nothing moves until the visitor explicitly presses Play.
+   */
+  const [playing, setPlaying] = useState(false);
 
   const reduced = useReducedMotion();
-
-  const canPlay =
-    !reduced && images.length > 1;
-
-  /*
-   * Controlled autoplay.
-   *
-   * Unlike the old CSS marquee, nothing moves until the visitor
-   * explicitly presses Play.
-   *
-   * Every few seconds the strip advances by approximately one
-   * photograph. At the end it returns to the beginning.
-   */
-  useEffect(() => {
-    if (!playing || !canPlay) return;
-
-    const interval = window.setInterval(() => {
-      const el = scroller.current;
-
-      if (!el) return;
-
-      const maxScroll =
-        el.scrollWidth - el.clientWidth;
-
-      const nearEnd =
-        el.scrollLeft >= maxScroll - 24;
-
-      if (nearEnd) {
-        el.scrollTo({
-          left: 0,
-          behavior: "smooth",
-        });
-      } else {
-        const step = Math.min(
-          360,
-          Math.max(280, el.clientWidth * 0.32)
-        );
-
-        el.scrollBy({
-          left: step,
-          behavior: "smooth",
-        });
-      }
-    }, 2800);
-
-    return () => {
-      window.clearInterval(interval);
-    };
-  }, [playing, canPlay]);
 
   if (images.length === 0) {
     return null;
   }
 
+  /*
+   * Continuous animation is useful only when there are enough
+   * photographs to create a meaningful strip.
+   *
+   * Reduced-motion users never receive automatic movement.
+   */
+  const canPlay =
+    !reduced &&
+    images.length > 3;
+
+  /*
+   * Duplicate the track for seamless CSS marquee looping.
+   *
+   * Unlike the previous implementation, duplication DOES NOT
+   * mean autoplay. The animation remains paused until Play
+   * is explicitly selected.
+   */
+  const loop =
+    canPlay
+      ? [...images, ...images]
+      : images;
+
+  /*
+   * Duration scales with the number of photographs.
+   *
+   * This creates the smooth slow archive-film movement of the
+   * original gallery instead of moving one image at a time.
+   */
+  const marqueeDuration =
+    Math.max(55, images.length * 6.5);
+
+  const togglePlay = () => {
+    if (!canPlay) return;
+
+    setPlaying((current) => !current);
+  };
+
   const nudge = (dir: 1 | -1) => {
     /*
-     * Manual interaction takes priority.
-     * Stop autoplay immediately.
+     * Manual navigation always gives control back to the visitor.
      */
     setPlaying(false);
 
@@ -194,22 +191,25 @@ export default function GalleryFilmstrip({
 
     const step = Math.min(
       380,
-      Math.max(300, el.clientWidth * 0.34)
+      Math.max(
+        300,
+        el.clientWidth * 0.34
+      )
     );
 
     el.scrollBy({
       left: dir * step,
-      behavior: reduced ? "auto" : "smooth",
+      behavior:
+        reduced
+          ? "auto"
+          : "smooth",
     });
   };
 
-  const togglePlay = () => {
-    if (!canPlay) return;
-
-    setPlaying((current) => !current);
-  };
-
   const openPhoto = (img: MediaRow) => {
+    /*
+     * Freeze the strip while viewing an image.
+     */
     setPlaying(false);
     setLightbox(img);
   };
@@ -267,7 +267,9 @@ export default function GalleryFilmstrip({
               )}
 
               <span className="hidden sm:inline">
-                {playing ? "Pause" : "Play"}
+                {playing
+                  ? "Pause"
+                  : "Play"}
               </span>
             </button>
           )}
@@ -299,80 +301,132 @@ export default function GalleryFilmstrip({
         {/* Left edge fade */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-[#FFF8EA] to-transparent opacity-80"
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-[#FFF8EA] to-transparent opacity-75"
         />
 
         {/* Right edge fade */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[#FFF8EA] to-transparent opacity-80"
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[#FFF8EA] to-transparent opacity-75"
         />
 
         <div
           ref={scroller}
-          className="scrollbar-none -mx-4 overflow-x-auto scroll-smooth px-4 pb-2"
+          className="scrollbar-none -mx-4 overflow-x-auto px-4 pb-2"
         >
-          <div className="flex w-max snap-x snap-mandatory gap-3.5">
-            {images.map((img, i) => (
-              <motion.button
-                key={img.id}
-                type="button"
-                onClick={() => openPhoto(img)}
-                aria-label={`Open photo: ${
-                  t(img.alt_text) || title
-                }`}
-                className="group relative block h-48 w-[17rem] shrink-0 snap-start overflow-hidden rounded-[1.15rem] border border-[#064E7A]/10 bg-[#F3E7D2] shadow-[0_8px_24px_rgba(6,78,122,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#0891B2]/28 hover:shadow-[0_15px_35px_rgba(6,78,122,0.12)] sm:h-56 sm:w-80"
-                initial={
-                  reduced
-                    ? {}
-                    : {
-                        opacity: 0,
-                        y: 12,
-                      }
-                }
-                whileInView={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                viewport={{
-                  once: true,
-                  margin: "0px 40px -8% 40px",
-                }}
-                transition={{
-                  duration: 0.45,
-                  delay: Math.min(i * 0.035, 0.2),
-                  ease,
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={
-                    img.url ??
-                    img.file_path ??
-                    ""
+          {/*
+           * The marquee animation exists continuously but its play-state
+           * is controlled entirely by the Play / Pause button.
+           *
+           * This means:
+           *
+           * initial state → paused
+           * Play          → smooth continuous drift
+           * Pause         → freezes exactly where it is
+           */}
+          <div
+            className={
+              canPlay
+                ? "marquee flex w-max gap-3.5"
+                : "flex w-max gap-3.5"
+            }
+            style={
+              canPlay
+                ? {
+                    animationDuration:
+                      `${marqueeDuration}s`,
+                    animationPlayState:
+                      playing
+                        ? "running"
+                        : "paused",
                   }
-                  alt={t(img.alt_text)}
-                  loading="lazy"
-                  width={320}
-                  height={224}
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] motion-reduce:transition-none"
-                />
+                : undefined
+            }
+          >
+            {loop.map((img, i) => {
+              /*
+               * The second half of the track exists only to make the
+               * animation seamless. It should not appear twice to
+               * keyboard or screen-reader users.
+               */
+              const duplicate =
+                canPlay &&
+                i >= images.length;
 
-                {/* Very light hover treatment only */}
-                <span
-                  aria-hidden
-                  className="absolute inset-0 bg-gradient-to-t from-[#031F2E]/28 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                />
+              const originalIndex =
+                i % images.length;
 
-                {/* Small archive index */}
-                <span
-                  aria-hidden
-                  className="absolute bottom-3 left-3 translate-y-1 rounded-full border border-white/25 bg-black/28 px-2.5 py-1 font-[var(--font-display)] text-[0.62rem] font-bold tracking-[0.12em] text-white opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+              return (
+                <button
+                  key={`${img.id}-${i}`}
+                  type="button"
+                  onClick={() =>
+                    openPhoto(img)
+                  }
+                  tabIndex={
+                    duplicate
+                      ? -1
+                      : 0
+                  }
+                  aria-hidden={
+                    duplicate
+                      ? true
+                      : undefined
+                  }
+                  aria-label={
+                    duplicate
+                      ? undefined
+                      : `Open photo: ${
+                          t(
+                            img.alt_text
+                          ) || title
+                        }`
+                  }
+                  className="group relative block h-48 w-[17rem] shrink-0 overflow-hidden rounded-[1.15rem] border border-[#064E7A]/10 bg-[#F3E7D2] shadow-[0_8px_24px_rgba(6,78,122,0.06)] transition-[border-color,box-shadow] duration-300 hover:border-[#0891B2]/28 hover:shadow-[0_15px_35px_rgba(6,78,122,0.12)] sm:h-56 sm:w-80"
                 >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-              </motion.button>
-            ))}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={
+                      img.url ??
+                      img.file_path ??
+                      ""
+                    }
+                    alt={
+                      duplicate
+                        ? ""
+                        : t(
+                            img.alt_text
+                          )
+                    }
+                    loading="lazy"
+                    width={320}
+                    height={224}
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] motion-reduce:transition-none"
+                  />
+
+                  {/* Very light hover treatment */}
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 bg-gradient-to-t from-[#031F2E]/28 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  />
+
+                  {/* Archive sequence number */}
+                  {!duplicate && (
+                    <span
+                      aria-hidden
+                      className="absolute bottom-3 left-3 translate-y-1 rounded-full border border-white/25 bg-black/28 px-2.5 py-1 font-[var(--font-display)] text-[0.62rem] font-bold tracking-[0.12em] text-white opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+                    >
+                      {String(
+                        originalIndex + 1
+                      ).padStart(
+                        2,
+                        "0"
+                      )}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -386,37 +440,42 @@ export default function GalleryFilmstrip({
             aria-hidden
             initial={{
               opacity: 0,
-              scaleX: 0,
             }}
             animate={{
               opacity: 1,
-              scaleX: 1,
             }}
             exit={{
               opacity: 0,
-              scaleX: 0,
             }}
             transition={{
-              duration: 0.3,
-              ease,
+              duration: 0.25,
             }}
-            className="mt-3 h-[2px] origin-left overflow-hidden rounded-full bg-[#064E7A]/8"
+            className="mt-3 flex items-center gap-3"
           >
-            <motion.div
-              className="h-full w-1/4 bg-gradient-to-r from-[#064E7A] via-[#0891B2] to-[#67E8F9]"
-              animate={
-                reduced
-                  ? {}
-                  : {
-                      x: ["-100%", "400%"],
-                    }
-              }
-              transition={{
-                duration: 2.8,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-            />
+            <div className="h-[2px] flex-1 overflow-hidden rounded-full bg-[#064E7A]/8">
+              <motion.div
+                className="h-full w-1/4 bg-gradient-to-r from-[#064E7A] via-[#0891B2] to-[#67E8F9]"
+                animate={
+                  reduced
+                    ? {}
+                    : {
+                        x: [
+                          "-100%",
+                          "400%",
+                        ],
+                      }
+                }
+                transition={{
+                  duration: 2.8,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
+            </div>
+
+            <span className="font-[var(--font-display)] text-[0.58rem] font-bold uppercase tracking-[0.18em] text-[#0891B2]/65">
+              Playing
+            </span>
           </motion.div>
         )}
       </AnimatePresence>
