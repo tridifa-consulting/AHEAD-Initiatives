@@ -1,153 +1,808 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Play, Clapperboard, ChevronDown, X } from "lucide-react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+} from "framer-motion";
+import {
+  Play,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  ArrowUpRight,
+} from "lucide-react";
 import type { MediaRow } from "@/lib/types";
 import { t } from "@/lib/types";
 
-/** Modal player for an MP4 film. */
-function FilmPlayer({ film, onClose }: { film: MediaRow; onClose: () => void }) {
+const ease = [0.22, 1, 0.36, 1] as const;
+const LEARNING_BATCH = 12;
+
+/* ─────────────────────────────────────────────────────────────
+   MODAL PLAYER
+───────────────────────────────────────────────────────────── */
+
+function FilmPlayer({
+  film,
+  onClose,
+}: {
+  film: MediaRow;
+  onClose: () => void;
+}) {
   const reduced = useReducedMotion();
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+
+    const previousOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow =
+      "hidden";
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        onKey
+      );
+
+      document.body.style.overflow =
+        previousOverflow;
+    };
+  }, [onClose]);
+
   return (
     <motion.div
-      role="dialog" aria-modal="true" aria-label={film.title ?? "Film"}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#16324F]/95 p-4"
-      initial={reduced ? {} : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      role="dialog"
+      aria-modal="true"
+      aria-label={
+        film.title ?? "Film"
+      }
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#031F2E]/96 p-4 backdrop-blur-sm"
+      initial={
+        reduced
+          ? {}
+          : { opacity: 0 }
+      }
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        className="relative w-full max-w-4xl overflow-hidden rounded-xl bg-black"
-        initial={reduced ? {} : { scale: 0.94, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={reduced ? {} : { scale: 0.94, opacity: 0 }}
-        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-5xl overflow-hidden rounded-[1.5rem] border border-white/15 bg-black shadow-[0_35px_100px_rgba(0,0,0,0.55)]"
+        initial={
+          reduced
+            ? {}
+            : {
+                scale: 0.96,
+                opacity: 0,
+              }
+        }
+        animate={{
+          scale: 1,
+          opacity: 1,
+        }}
+        exit={
+          reduced
+            ? {}
+            : {
+                scale: 0.96,
+                opacity: 0,
+              }
+        }
+        transition={{
+          duration: 0.3,
+          ease,
+        }}
+        onClick={(event) =>
+          event.stopPropagation()
+        }
       >
-        <video src={film.url ?? undefined} controls autoPlay playsInline className="aspect-video w-full">
+        <video
+          src={
+            film.url ??
+            undefined
+          }
+          controls
+          autoPlay
+          playsInline
+          className="aspect-video w-full bg-black"
+        >
           <track kind="captions" />
         </video>
+
+        <div className="border-t border-white/10 bg-[#071D2A] px-5 py-4 sm:px-7 sm:py-5">
+          <h4 className="font-serif text-xl font-bold text-[#FFF8EA]">
+            {film.title}
+          </h4>
+
+          {t(film.caption) && (
+            <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-white/65">
+              {t(film.caption)}
+            </p>
+          )}
+        </div>
       </motion.div>
-      <button onClick={onClose} aria-label="Close film"
-        className="absolute right-4 top-4 rounded-full bg-[#FAF7F0]/10 p-2.5 text-[#FAF7F0] hover:bg-[#FAF7F0]/25">
+
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close film"
+        className="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/35 text-white backdrop-blur-md transition-all duration-200 hover:border-[#67E8F9]/55 hover:bg-[#064E7A]/75 hover:text-[#B9F6FF]"
+      >
         <X className="h-5 w-5" />
       </button>
     </motion.div>
   );
 }
 
-/** A documentary card whose thumbnail is the film's own first frame. */
-function FilmPoster({ film, index, onPlay }: { film: MediaRow; index: number; onPlay: () => void }) {
-  const vref = useRef<HTMLVideoElement>(null);
-  const reduced = useReducedMotion();
+/* ─────────────────────────────────────────────────────────────
+   FEATURED DOCUMENTARY
+───────────────────────────────────────────────────────────── */
+
+function FeaturedDocumentary({
+  film,
+  index,
+  total,
+  onPlay,
+}: {
+  film: MediaRow;
+  index: number;
+  total: number;
+  onPlay: () => void;
+}) {
+  const videoRef =
+    useRef<HTMLVideoElement>(null);
+
+  const reduced =
+    useReducedMotion();
+
+  const preview = () => {
+    if (reduced) return;
+
+    const video =
+      videoRef.current;
+
+    if (!video) return;
+
+    video
+      .play()
+      .catch(() => {});
+  };
+
+  const stopPreview = () => {
+    const video =
+      videoRef.current;
+
+    if (!video) return;
+
+    video.pause();
+
+    try {
+      video.currentTime = 0.5;
+    } catch {
+      /* Browser may not have metadata yet */
+    }
+  };
+
+  return (
+    <motion.div
+      key={film.id}
+      initial={
+        reduced
+          ? {}
+          : {
+              opacity: 0,
+              y: 14,
+            }
+      }
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 0.45,
+        ease,
+      }}
+      className="overflow-hidden rounded-[1.8rem] border border-[#064E7A]/12 bg-[#071D2A] shadow-[0_24px_70px_rgba(6,78,122,0.15)]"
+    >
+      <div
+        className="group relative aspect-[16/8.4] min-h-[290px] overflow-hidden bg-[#031F2E]"
+        onMouseEnter={preview}
+        onMouseLeave={stopPreview}
+      >
+        <video
+          ref={videoRef}
+          src={`${
+            film.url ?? ""
+          }#t=0.5`}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+
+        {/* Readability treatment only over lower region */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-t from-[#031F2E]/88 via-[#031F2E]/18 to-transparent"
+        />
+
+        {/* Archive marker */}
+        <div className="absolute left-5 top-5 sm:left-7 sm:top-7">
+          <div className="inline-flex items-center gap-3 rounded-full border border-white/18 bg-black/28 px-3 py-2 backdrop-blur-md">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#67E8F9]" />
+
+            <span className="font-[var(--font-display)] text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-white/82">
+              AHEAD Film Archive
+            </span>
+          </div>
+        </div>
+
+        {/* Sequence */}
+        <div className="absolute right-5 top-5 font-[var(--font-display)] text-[0.68rem] font-extrabold tracking-[0.14em] text-white/70 sm:right-7 sm:top-7">
+          {String(
+            index + 1
+          ).padStart(2, "0")}
+          <span className="mx-2 text-white/30">
+            /
+          </span>
+          {String(
+            total
+          ).padStart(2, "0")}
+        </div>
+
+        {/* Play */}
+        <button
+          type="button"
+          onClick={onPlay}
+          aria-label={`Play: ${film.title}`}
+          className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-[#FFF8EA]/94 text-[#064E7A] shadow-[0_16px_42px_rgba(0,0,0,0.28)] transition-all duration-300 hover:scale-105 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#67E8F9] sm:h-24 sm:w-24"
+        >
+          <Play className="ml-1 h-8 w-8 fill-current sm:h-9 sm:w-9" />
+        </button>
+
+        {/* Featured title */}
+        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7 lg:p-8">
+          <div className="max-w-3xl">
+            <div className="mb-2 font-[var(--font-display)] text-[0.62rem] font-extrabold uppercase tracking-[0.2em] text-[#67E8F9]">
+              Documentary
+            </div>
+
+            <h4 className="font-serif text-2xl font-bold leading-tight tracking-[-0.025em] text-[#FFF8EA] sm:text-3xl">
+              {film.title}
+            </h4>
+
+            {t(film.caption) && (
+              <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-white/68 sm:text-base">
+                {t(film.caption)}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DOCUMENTARY SELECTOR
+───────────────────────────────────────────────────────────── */
+
+function DocumentaryRail({
+  films,
+  selectedIndex,
+  onSelect,
+}: {
+  films: MediaRow[];
+  selectedIndex: number;
+  onSelect: (
+    index: number
+  ) => void;
+}) {
+  const railRef =
+    useRef<HTMLDivElement>(null);
+
+  const reduced =
+    useReducedMotion();
+
+  const nudge = (
+    direction: 1 | -1
+  ) => {
+    railRef.current?.scrollBy({
+      left: direction * 300,
+      behavior:
+        reduced
+          ? "auto"
+          : "smooth",
+    });
+  };
+
+  return (
+    <div className="relative mt-5">
+      <div className="mb-3 flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={() =>
+            nudge(-1)
+          }
+          aria-label="Previous documentaries"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] text-[#064E7A]/70 transition-colors hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] hover:text-[#064E7A]"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            nudge(1)
+          }
+          aria-label="Next documentaries"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] text-[#064E7A]/70 transition-colors hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] hover:text-[#064E7A]"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div
+        ref={railRef}
+        className="scrollbar-none overflow-x-auto pb-2"
+      >
+        <div className="flex w-max gap-3">
+          {films.map(
+            (film, index) => {
+              const active =
+                index ===
+                selectedIndex;
+
+              return (
+                <button
+                  key={film.id}
+                  type="button"
+                  onClick={() =>
+                    onSelect(
+                      index
+                    )
+                  }
+                  aria-pressed={
+                    active
+                  }
+                  className={`group relative w-[225px] shrink-0 overflow-hidden rounded-[1.15rem] border text-left transition-all duration-250 ${
+                    active
+                      ? "border-[#0891B2]/45 bg-[#064E7A] shadow-[0_12px_30px_rgba(6,78,122,0.15)]"
+                      : "border-[#064E7A]/10 bg-[#FFFDF8] hover:-translate-y-0.5 hover:border-[#0891B2]/28"
+                  }`}
+                >
+                  <div className="relative aspect-video overflow-hidden bg-[#031F2E]">
+                    <video
+                      src={`${
+                        film.url ??
+                        ""
+                      }#t=0.5`}
+                      muted
+                      playsInline
+                      preload="metadata"
+                      className="h-full w-full object-cover"
+                    />
+
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent"
+                    />
+
+                    <div className="absolute bottom-2 left-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#FFF8EA]/92 text-[#064E7A]">
+                      <Play className="ml-0.5 h-3 w-3 fill-current" />
+                    </div>
+
+                    <span className="absolute bottom-2 right-2 font-[var(--font-display)] text-[0.58rem] font-extrabold text-white/75">
+                      {String(
+                        index +
+                          1
+                      ).padStart(
+                        2,
+                        "0"
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="p-3.5">
+                    <div
+                      className={`line-clamp-2 font-serif text-sm font-bold leading-[1.35] ${
+                        active
+                          ? "text-[#FFF8EA]"
+                          : "text-[#064E7A]"
+                      }`}
+                    >
+                      {film.title}
+                    </div>
+                  </div>
+                </button>
+              );
+            }
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LEARNING FILM ROW
+───────────────────────────────────────────────────────────── */
+
+function LearningFilmRow({
+  film,
+  index,
+  onPlay,
+}: {
+  film: MediaRow;
+  index: number;
+  onPlay: () => void;
+}) {
+  const reduced =
+    useReducedMotion();
+
   return (
     <motion.li
-      initial={reduced ? {} : { opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0, margin: "0px 0px 12% 0px" }}
-      transition={{ duration: 0.5, delay: Math.min(index, 5) * 0.06 }}
+      initial={
+        reduced
+          ? {}
+          : {
+              opacity: 0,
+              y: 8,
+            }
+      }
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      exit={
+        reduced
+          ? {}
+          : {
+              opacity: 0,
+            }
+      }
+      transition={{
+        duration: 0.3,
+        delay:
+          Math.min(
+            index,
+            10
+          ) * 0.025,
+        ease,
+      }}
     >
       <button
+        type="button"
         onClick={onPlay}
-        onMouseEnter={() => { if (!reduced) vref.current?.play().catch(() => {}); }}
-        onMouseLeave={() => { vref.current?.pause(); if (vref.current) vref.current.currentTime = 0.5; }}
-        className="group block h-full w-full overflow-hidden rounded-2xl border border-[#16324F]/8 bg-white text-left shadow-sm transition-shadow hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#C65D3B]"
-        aria-label={`Play: ${film.title}`}
+        className="group grid w-full grid-cols-[42px_minmax(0,1fr)_38px] items-center gap-3 rounded-[1.1rem] border border-[#064E7A]/9 bg-[#FFFDF8] px-3 py-3 text-left transition-all duration-250 hover:-translate-y-0.5 hover:border-[#0891B2]/28 hover:shadow-[0_10px_26px_rgba(6,78,122,0.07)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2] sm:px-4"
       >
-        <div className="relative aspect-video overflow-hidden bg-[#16324F]">
-          {/* first frame as poster; muted so hover-preview can autoplay */}
-          <video
-            ref={vref}
-            src={`${film.url ?? ""}#t=0.5`}
-            muted loop playsInline preload="metadata"
-            className="h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105"
-          />
-          <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#16324F]/50 to-transparent" />
-          <span className="absolute inset-0 flex items-center justify-center">
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FAF7F0]/90 text-[#16324F] shadow-lg transition-transform duration-200 group-hover:scale-110">
-              <Play className="ml-0.5 h-6 w-6" />
-            </span>
+        {/* Archive sequence */}
+        <span className="font-[var(--font-display)] text-[0.72rem] font-extrabold tracking-[0.08em] text-[#0891B2]/60">
+          {String(
+            index + 1
+          ).padStart(
+            2,
+            "0"
+          )}
+        </span>
+
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-bold text-[#064E7A]">
+            {film.title}
           </span>
-        </div>
-        <div className="p-5">
-          <h4 className="font-serif text-base font-semibold text-[#16324F]">{film.title}</h4>
-          <p className="mt-1.5 text-sm leading-relaxed text-[#1F2933]/65">{t(film.caption)}</p>
-        </div>
+
+          {t(film.caption) && (
+            <span className="mt-0.5 block truncate text-[0.7rem] font-medium text-[#526B75]/62">
+              {t(film.caption)}
+            </span>
+          )}
+        </span>
+
+        <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#064E7A]/10 bg-[#F6EEDC] text-[#064E7A] transition-all duration-200 group-hover:border-[#0891B2]/30 group-hover:bg-[#064E7A] group-hover:text-white">
+          <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />
+        </span>
       </button>
     </motion.li>
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   MAIN LIBRARY
+───────────────────────────────────────────────────────────── */
+
 export default function FilmLibrary({
-  documentaries, learning,
-}: { documentaries: MediaRow[]; learning: MediaRow[] }) {
-  const [expanded, setExpanded] = useState(false);
-  const [playing, setPlaying] = useState<MediaRow | null>(null);
-  const reduced = useReducedMotion();
-  const shown = expanded ? learning : learning.slice(0, 12);
+  documentaries,
+  learning,
+}: {
+  documentaries: MediaRow[];
+  learning: MediaRow[];
+}) {
+  const [
+    selectedDocumentary,
+    setSelectedDocumentary,
+  ] = useState(0);
+
+  const [
+    visibleLearning,
+    setVisibleLearning,
+  ] = useState(
+    LEARNING_BATCH
+  );
+
+  const [
+    playing,
+    setPlaying,
+  ] = useState<MediaRow | null>(
+    null
+  );
+
+  const reduced =
+    useReducedMotion();
+
+  const featured =
+    documentaries[
+      selectedDocumentary
+    ];
+
+  const shownLearning =
+    learning.slice(
+      0,
+      visibleLearning
+    );
+
+  const hasMoreLearning =
+    visibleLearning <
+    learning.length;
+
+  const canCollapseLearning =
+    visibleLearning >
+    LEARNING_BATCH;
+
+  const showMore = () => {
+    setVisibleLearning(
+      (current) =>
+        Math.min(
+          current +
+            LEARNING_BATCH,
+          learning.length
+        )
+    );
+  };
+
+  const collapseLearning = () => {
+    setVisibleLearning(
+      LEARNING_BATCH
+    );
+  };
 
   return (
-    <div className="space-y-16">
-      {documentaries.length > 0 && (
-        <section aria-label="Documentaries">
-          <h3 className="mb-1 font-serif text-xl font-semibold text-[#16324F]">Stories of Hope and Initiative</h3>
-          <p className="mb-6 text-sm text-[#1F2933]/60">
-            Field documentaries produced by AHEAD&apos;s studio — hover to preview, click to watch.
-          </p>
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {documentaries.map((f, i) => (
-              <FilmPoster key={f.id} film={f} index={i} onPlay={() => setPlaying(f)} />
-            ))}
-          </ul>
-        </section>
-      )}
+    <div className="space-y-20">
+      {/* ────────────────────────────────────────
+          STORIES OF HOPE AND INITIATIVE
+      ───────────────────────────────────────── */}
+      {documentaries.length >
+        0 && (
+        <section
+          aria-label="Documentaries"
+          className="relative"
+        >
+          {/* Heading */}
+          <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <div className="mb-2 flex items-center gap-3">
+                <span className="h-px w-8 bg-[#0891B2]/55" />
 
-      {learning.length > 0 && (
-        <section aria-label="Learning for All film library">
-          <h3 className="mb-1 font-serif text-xl font-semibold text-[#16324F]">
-            Learning for All — {learning.length} Films
-          </h3>
-          <p className="mb-6 text-sm text-[#1F2933]/60">
-            Bengali films, translations and animations for rural schools.
-          </p>
-          <motion.ul className="grid gap-2 sm:grid-cols-2">
-            <AnimatePresence initial={false}>
-              {shown.map((f, i) => (
-                <motion.li
-                  key={f.id}
-                  initial={reduced ? {} : { opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={reduced ? {} : { opacity: 0 }}
-                  transition={{ duration: 0.2, delay: i > 11 ? Math.min(i - 11, 8) * 0.02 : 0 }}
-                >
-                  <button
-                    onClick={() => setPlaying(f)}
-                    className="flex w-full items-start gap-2.5 rounded-xl border border-[#16324F]/8 bg-white px-4 py-3 text-left transition-colors hover:border-[#C65D3B]/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#C65D3B]"
-                  >
-                    <Clapperboard aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-[#C65D3B]" />
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium text-[#16324F]">{f.title}</span>
-                      <span className="block truncate text-xs text-[#1F2933]/55">{t(f.caption)}</span>
-                    </span>
-                  </button>
-                </motion.li>
-              ))}
-            </AnimatePresence>
-          </motion.ul>
-          {learning.length > 12 && (
-            <button
-              onClick={() => setExpanded((e) => !e)}
-              className="mt-5 flex items-center gap-2 text-sm text-[#1F2933]/60 hover:text-[#C65D3B]"
-            >
-              <motion.span animate={reduced ? {} : { rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                <ChevronDown className="h-4 w-4" />
-              </motion.span>
-              {expanded ? "Show fewer films" : `Show all ${learning.length} films`}
-            </button>
+                <span className="font-[var(--font-display)] text-[0.63rem] font-extrabold uppercase tracking-[0.22em] text-[#526B75]/70">
+                  Documentary Collection
+                </span>
+              </div>
+
+              <h3 className="font-serif text-[1.55rem] font-bold tracking-[-0.025em] text-[#064E7A] sm:text-[1.8rem]">
+                Stories of Hope and Initiative
+              </h3>
+
+              <p className="mt-2 text-sm font-medium text-[#526B75]/65">
+                Field documentaries produced by AHEAD&apos;s studio — hover to preview, click to watch.
+              </p>
+            </div>
+
+            <div className="font-[var(--font-display)] text-[0.65rem] font-bold uppercase tracking-[0.18em] text-[#0891B2]/60">
+              {documentaries.length} films
+            </div>
+          </div>
+
+          {/* Screening room */}
+          {featured && (
+            <FeaturedDocumentary
+              film={featured}
+              index={
+                selectedDocumentary
+              }
+              total={
+                documentaries.length
+              }
+              onPlay={() =>
+                setPlaying(
+                  featured
+                )
+              }
+            />
+          )}
+
+          {/* Film selector */}
+          {documentaries.length >
+            1 && (
+            <DocumentaryRail
+              films={
+                documentaries
+              }
+              selectedIndex={
+                selectedDocumentary
+              }
+              onSelect={
+                setSelectedDocumentary
+              }
+            />
           )}
         </section>
       )}
 
+      {/* ────────────────────────────────────────
+          LEARNING FOR ALL
+      ───────────────────────────────────────── */}
+      {learning.length > 0 && (
+        <section
+          aria-label="Learning for All film library"
+          className="relative"
+        >
+          <div className="mb-7 grid gap-4 border-b border-[#064E7A]/10 pb-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+            <div>
+              <div className="mb-2 flex items-center gap-3">
+                <span className="h-px w-8 bg-[#B96543]/55" />
+
+                <span className="font-[var(--font-display)] text-[0.63rem] font-extrabold uppercase tracking-[0.22em] text-[#526B75]/70">
+                  Learning Film Archive
+                </span>
+              </div>
+
+              <h3 className="font-serif text-[1.55rem] font-bold tracking-[-0.025em] text-[#064E7A] sm:text-[1.8rem]">
+                Learning for All — {learning.length} Films
+              </h3>
+
+              <p className="mt-2 text-sm font-medium text-[#526B75]/65">
+                Bengali films, translations and animations for rural schools.
+              </p>
+            </div>
+
+            <div className="text-left sm:text-right">
+              <div className="font-[var(--font-display)] text-xl font-extrabold text-[#064E7A]">
+                {learning.length}
+              </div>
+
+              <div className="text-[0.58rem] font-bold uppercase tracking-[0.18em] text-[#526B75]/55">
+                films in archive
+              </div>
+            </div>
+          </div>
+
+          {/* Compact film index */}
+          <motion.ul
+            layout
+            className="grid gap-2.5 lg:grid-cols-2"
+          >
+            <AnimatePresence
+              initial={false}
+            >
+              {shownLearning.map(
+                (
+                  film,
+                  index
+                ) => (
+                  <LearningFilmRow
+                    key={
+                      film.id
+                    }
+                    film={
+                      film
+                    }
+                    index={
+                      index
+                    }
+                    onPlay={() =>
+                      setPlaying(
+                        film
+                      )
+                    }
+                  />
+                )
+              )}
+            </AnimatePresence>
+          </motion.ul>
+
+          {/* Progressive archive controls */}
+          {(hasMoreLearning ||
+            canCollapseLearning) && (
+            <div className="mt-7 flex flex-wrap items-center justify-between gap-4 border-t border-[#064E7A]/8 pt-5">
+              <div className="text-[0.68rem] font-medium text-[#526B75]/58">
+                Showing{" "}
+                {Math.min(
+                  visibleLearning,
+                  learning.length
+                )}{" "}
+                of{" "}
+                {
+                  learning.length
+                }{" "}
+                films
+              </div>
+
+              <div className="flex items-center gap-3">
+                {canCollapseLearning && (
+                  <button
+                    type="button"
+                    onClick={
+                      collapseLearning
+                    }
+                    className="text-[0.7rem] font-bold text-[#526B75]/65 transition-colors hover:text-[#064E7A]"
+                  >
+                    Show fewer
+                  </button>
+                )}
+
+                {hasMoreLearning && (
+                  <button
+                    type="button"
+                    onClick={
+                      showMore
+                    }
+                    className="group inline-flex min-h-10 items-center gap-2 rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] px-4 py-2 font-[var(--font-display)] text-[0.68rem] font-bold text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/32 hover:bg-[#EAFBFD]"
+                  >
+                    Show more films
+
+                    <span className="text-[#526B75]/50">
+                      {Math.min(
+                        LEARNING_BATCH,
+                        learning.length -
+                          visibleLearning
+                      )}
+                    </span>
+
+                    <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ────────────────────────────────────────
+          PLAYER
+      ───────────────────────────────────────── */}
       <AnimatePresence>
-        {playing && <FilmPlayer film={playing} onClose={() => setPlaying(null)} />}
+        {playing && (
+          <FilmPlayer
+            film={playing}
+            onClose={() =>
+              setPlaying(null)
+            }
+          />
+        )}
       </AnimatePresence>
     </div>
   );
