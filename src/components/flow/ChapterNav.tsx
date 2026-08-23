@@ -17,17 +17,38 @@ import {
 export type Chapter = {
   slug: string;
   label: string;
+
+  /**
+   * Optional explicit destination.
+   *
+   * - Omit on the homepage to use the local anchor: #story, #work, etc.
+   * - Use "/#story", "/#work", etc. from inner pages so the global
+   *   navigation always returns to the corresponding homepage chapter.
+   */
+  href?: string;
 };
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
 export default function ChapterNav({
   chapters,
+  activeSlug,
 }: {
   chapters: Chapter[];
+
+  /**
+   * Optional fixed active chapter for pages that use the global navigation
+   * but do not contain the homepage section IDs.
+   *
+   * Example:
+   *   <ChapterNav chapters={globalChapters} activeSlug="work" />
+   *
+   * Homepage usage does not need this prop; scroll-spy remains automatic.
+   */
+  activeSlug?: string;
 }) {
   const [active, setActive] = useState(
-    chapters[0]?.slug ?? ""
+    activeSlug ?? ""
   );
 
   const [scrolled, setScrolled] =
@@ -50,33 +71,81 @@ export default function ChapterNav({
     );
 
   /* ─────────────────────────────────────────────
-     Scroll spy
+     Honour an explicitly controlled active chapter
   ───────────────────────────────────────────── */
 
   useEffect(() => {
-    const els: [
-      string,
-      HTMLElement
-    ][] = chapters
-      .map(
-        (c) =>
-          [
-            c.slug,
-            document.getElementById(
-              c.slug
-            ),
-          ] as [
-            string,
-            HTMLElement | null
-          ]
-      )
+    if (activeSlug) {
+      setActive(activeSlug);
+    }
+  }, [activeSlug]);
+
+  /* ─────────────────────────────────────────────
+     Scroll spy
+
+     Only chapters that actually exist on the current page are observed.
+     This lets the same component safely power:
+       - homepage local navigation (#story, #work, ...)
+       - inner-page global navigation (/#story, /#work, ...)
+  ───────────────────────────────────────────── */
+
+  useEffect(() => {
+    /*
+     * Inner pages can explicitly pin the relevant global chapter
+     * (for example activeSlug="work"). In that mode we do not let
+     * an unrelated local element override the global context.
+     */
+    if (activeSlug) return;
+
+    const els = chapters
+      .map((chapter) => {
+        const el =
+          document.getElementById(
+            chapter.slug
+          );
+
+        return el
+          ? ([chapter.slug, el] as [
+              string,
+              HTMLElement
+            ])
+          : null;
+      })
       .filter(
-        ([, el]) =>
-          el !== null
-      ) as [
-        string,
-        HTMLElement
-      ][];
+        (
+          item
+        ): item is [
+          string,
+          HTMLElement
+        ] => item !== null
+      );
+
+    /*
+     * No matching sections on this route means this is acting as
+     * global navigation rather than local chapter navigation.
+     */
+    if (els.length === 0) {
+      setActive("");
+      return;
+    }
+
+    /*
+     * Give the homepage an immediate sensible active state before
+     * IntersectionObserver reports its first entry.
+     */
+    setActive((current) => {
+      if (
+        current &&
+        els.some(
+          ([slug]) =>
+            slug === current
+        )
+      ) {
+        return current;
+      }
+
+      return els[0][0];
+    });
 
     let raf = 0;
 
@@ -126,7 +195,7 @@ export default function ChapterNav({
       observer.disconnect();
       cancelAnimationFrame(raf);
     };
-  }, [chapters]);
+  }, [chapters, activeSlug]);
 
   /* ─────────────────────────────────────────────
      Header depth after scrolling
@@ -157,15 +226,20 @@ export default function ChapterNav({
 
   /* ─────────────────────────────────────────────
      Keep current chapter visible horizontally
+
+     data-chapter is used instead of querying the href, because href may
+     now be either "#work" or "/#work".
   ───────────────────────────────────────────── */
 
   useEffect(() => {
+    if (!active) return;
+
     const bar =
       barRef.current;
 
     const link =
       bar?.querySelector<HTMLAnchorElement>(
-        `a[href="#${active}"]`
+        `[data-chapter="${active}"]`
       );
 
     if (!bar || !link) return;
@@ -235,8 +309,8 @@ export default function ChapterNav({
         ─────────────────────────────────────── */}
 
         <Link
-          href="#top"
-          aria-label="AHEAD Initiatives — back to top"
+          href="/#top"
+          aria-label="AHEAD Initiatives — back to homepage"
           className="group flex shrink-0 items-center gap-3 py-2.5 sm:py-3"
         >
           <motion.div
@@ -306,13 +380,20 @@ export default function ChapterNav({
               active ===
               chapter.slug;
 
+            const href =
+              chapter.href ??
+              `#${chapter.slug}`;
+
             return (
               <a
                 key={chapter.slug}
-                href={`#${chapter.slug}`}
+                href={href}
+                data-chapter={
+                  chapter.slug
+                }
                 aria-current={
                   current
-                    ? "true"
+                    ? "location"
                     : undefined
                 }
                 className={`group relative shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-[0.82rem] font-semibold transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2] sm:text-[0.84rem] ${
