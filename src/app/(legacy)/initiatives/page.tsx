@@ -33,13 +33,30 @@ const COLOR = {
   textLight: "#526B75",
 } as const;
 
-/* ───────────────────────── Chapter Navigation ───────────────────── */
-const initiativeChapters: NavChapter[] = [
-  { slug: "hunger", label: "Hunger" },
-  { slug: "education", label: "Education" },
-  { slug: "culture", label: "Culture" },
-  { slug: "srijangan", label: "Srijangan" },
-  { slug: "strategy", label: "Strategy" },
+/* ───────────────────────── Global Navigation ────────────────────── */
+/**
+ * The initiatives route is a child experience of the homepage Work chapter.
+ *
+ * The five initiative sections remain addressable through:
+ *   /initiatives#hunger
+ *   /initiatives#education
+ *   /initiatives#culture
+ *   /initiatives#srijangan
+ *   /initiatives#strategy
+ *
+ * They are intentionally NOT exposed as top-level ChapterNav items.
+ * The global AHEAD navigation stays consistent, with Work highlighted.
+ */
+const globalChapters: NavChapter[] = [
+  { slug: "story", label: "Story", href: "/#story" },
+  { slug: "philosophy", label: "Philosophy", href: "/#philosophy" },
+  { slug: "work", label: "Work", href: "/#work" },
+  { slug: "field", label: "Field Stories", href: "/#field" },
+  { slug: "publications", label: "Publications", href: "/#publications" },
+  { slug: "media", label: "Media", href: "/#media" },
+  { slug: "reports", label: "Reports", href: "/#reports" },
+  { slug: "partners", label: "Partners", href: "/#partners" },
+  { slug: "contact", label: "Contact", href: "/#contact" },
 ];
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -189,7 +206,10 @@ export default function InitiativesPage() {
   return (
     <main className="bg-[#FFF8EA] antialiased">
       {/* ════════════════════ CHAPTER NAVIGATION ════════════════════ */}
-      <ChapterNav chapters={initiativeChapters} />
+      <ChapterNav
+        chapters={globalChapters}
+        activeSlug="work"
+      />
 
       {/* ════════════════════ HERO BANNER ════════════════════ */}
       <section
