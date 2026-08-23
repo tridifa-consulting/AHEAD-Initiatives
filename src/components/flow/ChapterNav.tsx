@@ -2,178 +2,335 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 
-export type Chapter = { slug: string; label: string };
+export type Chapter = {
+  slug: string;
+  label: string;
+};
 
-export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
-  const [active, setActive] = useState(chapters[0]?.slug ?? "");
-  const [scrolled, setScrolled] = useState(false);
-  const barRef = useRef<HTMLElement>(null);
-  const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll();
-  const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+const ease = [0.22, 1, 0.36, 1] as const;
 
-  /* scroll-spy */
-  useEffect(() => {
-    const els: [string, HTMLElement][] = chapters
-      .map((c) => [c.slug, document.getElementById(c.slug)] as [string, HTMLElement | null])
-      .filter(([, el]) => el !== null) as [string, HTMLElement][];
+export default function ChapterNav({
+  chapters,
+}: {
+  chapters: Chapter[];
+}) {
+  const [active, setActive] = useState(
+    chapters[0]?.slug ?? ""
+  );
 
-    let raf = 0;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(() => {
-          const visible = entries
-            .filter((e) => e.isIntersecting)
-            .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+  const [scrolled, setScrolled] =
+    useState(false);
 
-          if (visible[0]) setActive(visible[0].target.id);
-        });
-      },
-      { rootMargin: "-25% 0px -60% 0px" }
+  const barRef =
+    useRef<HTMLElement>(null);
+
+  const reduced =
+    useReducedMotion();
+
+  const { scrollYProgress } =
+    useScroll();
+
+  const progressWidth =
+    useTransform(
+      scrollYProgress,
+      [0, 1],
+      ["0%", "100%"]
     );
 
-    els.forEach(([, el]) => obs.observe(el));
+  /* ─────────────────────────────────────────────
+     Scroll spy
+  ───────────────────────────────────────────── */
+
+  useEffect(() => {
+    const els: [
+      string,
+      HTMLElement
+    ][] = chapters
+      .map(
+        (c) =>
+          [
+            c.slug,
+            document.getElementById(
+              c.slug
+            ),
+          ] as [
+            string,
+            HTMLElement | null
+          ]
+      )
+      .filter(
+        ([, el]) =>
+          el !== null
+      ) as [
+        string,
+        HTMLElement
+      ][];
+
+    let raf = 0;
+
+    const observer =
+      new IntersectionObserver(
+        (entries) => {
+          cancelAnimationFrame(
+            raf
+          );
+
+          raf =
+            requestAnimationFrame(
+              () => {
+                const visible =
+                  entries
+                    .filter(
+                      (entry) =>
+                        entry.isIntersecting
+                    )
+                    .sort(
+                      (a, b) =>
+                        a.boundingClientRect
+                          .top -
+                        b.boundingClientRect
+                          .top
+                    );
+
+                if (visible[0]) {
+                  setActive(
+                    visible[0].target.id
+                  );
+                }
+              }
+            );
+        },
+        {
+          rootMargin:
+            "-25% 0px -60% 0px",
+        }
+      );
+
+    els.forEach(([, el]) =>
+      observer.observe(el)
+    );
 
     return () => {
-      obs.disconnect();
+      observer.disconnect();
       cancelAnimationFrame(raf);
     };
   }, [chapters]);
 
-  /* navbar shadow on scroll */
+  /* ─────────────────────────────────────────────
+     Header depth after scrolling
+  ───────────────────────────────────────────── */
+
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    const onScroll = () =>
+      setScrolled(
+        window.scrollY > 60
+      );
+
     onScroll();
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener(
+      "scroll",
+      onScroll,
+      {
+        passive: true,
+      }
+    );
+
+    return () =>
+      window.removeEventListener(
+        "scroll",
+        onScroll
+      );
   }, []);
 
-  /* Auto-centre the active pill — horizontal ONLY, scoped to the nav strip. */
+  /* ─────────────────────────────────────────────
+     Keep current chapter visible horizontally
+  ───────────────────────────────────────────── */
+
   useEffect(() => {
-    const bar = barRef.current;
-    const link = bar?.querySelector<HTMLAnchorElement>(`a[href="#${active}"]`);
+    const bar =
+      barRef.current;
+
+    const link =
+      bar?.querySelector<HTMLAnchorElement>(
+        `a[href="#${active}"]`
+      );
 
     if (!bar || !link) return;
 
-    const targetLeft = link.offsetLeft - bar.clientWidth / 2 + link.clientWidth / 2;
+    const targetLeft =
+      link.offsetLeft -
+      bar.clientWidth / 2 +
+      link.clientWidth / 2;
 
     bar.scrollTo({
-      left: Math.max(0, targetLeft),
-      behavior: reduced ? "auto" : "smooth",
+      left: Math.max(
+        0,
+        targetLeft
+      ),
+      behavior: reduced
+        ? "auto"
+        : "smooth",
     });
   }, [active, reduced]);
 
   return (
     <header
-      className="sticky top-0 z-50 overflow-hidden border-b border-[#064E7A]/10 transition-shadow duration-300"
+      className="sticky top-0 z-50 border-b border-[#064E7A]/8 transition-shadow duration-300"
       style={{
-        backgroundColor: "rgba(255, 248, 234, 0.95)",
-        backdropFilter: "blur(18px)",
+        backgroundColor:
+          "rgba(255,248,234,0.965)",
+        backdropFilter:
+          "blur(18px)",
+        WebkitBackdropFilter:
+          "blur(18px)",
         boxShadow: scrolled
-          ? "0 1px 0 rgba(6,78,122,0.10), 0 16px 42px rgba(6,78,122,0.10)"
-          : "0 1px 0 rgba(6,78,122,0.05)",
+          ? "0 1px 0 rgba(6,78,122,0.07), 0 12px 34px rgba(6,78,122,0.08)"
+          : "0 1px 0 rgba(6,78,122,0.035)",
       }}
     >
-      {/* Quiet beige paper texture */}
+      {/* ────────────────────────────────────────
+          Paper texture
+      ───────────────────────────────────────── */}
+
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.36]"
+        className="pointer-events-none absolute inset-0 opacity-[0.25]"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(185,101,67,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(8,145,178,0.04) 1px, transparent 1px)",
-          backgroundSize: "34px 34px",
+            "linear-gradient(rgba(185,101,67,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(8,145,178,0.025) 1px, transparent 1px)",
+          backgroundSize:
+            "36px 36px",
         }}
       />
 
-      {/* Fine aqua-blue manuscript rule */}
+      {/* ────────────────────────────────────────
+          Fine manuscript line
+      ───────────────────────────────────────── */}
+
       <div
         aria-hidden
-        className="absolute left-0 right-0 top-0 h-[2px]"
+        className="absolute inset-x-0 top-0 h-[2px]"
         style={{
           background:
-            "linear-gradient(90deg, #064E7A 0%, #0891B2 42%, #67E8F9 64%, #D8A441 82%, #B96543 100%)",
+            "linear-gradient(90deg, #064E7A 0%, #0891B2 38%, #67E8F9 60%, #D8A441 82%, #B96543 100%)",
         }}
       />
 
-      <div className="relative mx-auto flex max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        {/* Logo + wordmark */}
+      <div className="relative mx-auto flex max-w-7xl items-center px-4 sm:px-6 lg:px-8">
+        {/* ──────────────────────────────────────
+            Brand
+        ─────────────────────────────────────── */}
+
         <Link
           href="#top"
-          className="group flex shrink-0 items-center gap-3 py-3.5"
           aria-label="AHEAD Initiatives — back to top"
+          className="group flex shrink-0 items-center gap-3 py-2.5 sm:py-3"
         >
           <motion.div
-            whileHover={reduced ? {} : { scale: 1.04 }}
-            whileTap={reduced ? {} : { scale: 0.97 }}
+            whileHover={
+              reduced
+                ? {}
+                : {
+                    scale: 1.035,
+                  }
+            }
+            whileTap={
+              reduced
+                ? {}
+                : {
+                    scale: 0.97,
+                  }
+            }
+            transition={{
+              duration: 0.2,
+            }}
             className="relative"
           >
-            <div className="absolute -inset-1 rounded-full border border-[#0891B2]/22 bg-[#fff8ea]" />
-            <div className="relative rounded-full border border-[#064E7A]/14 bg-[#fff8ea] p-1 shadow-sm">
+            {/* Outer institutional seal */}
+            <div className="absolute -inset-1 rounded-full border border-[#0891B2]/17" />
+
+            <div className="relative overflow-hidden rounded-full border border-[#064E7A]/12 bg-[#FFF8EA] p-[3px] shadow-[0_3px_12px_rgba(6,78,122,0.08)]">
               <Image
                 src="/logo.jpg"
                 alt=""
-                width={34}
-                height={34}
-                className="rounded-full"
+                width={38}
+                height={38}
                 priority
+                className="rounded-full"
               />
             </div>
           </motion.div>
 
           <span className="hidden sm:block">
-            <span className="block font-serif text-[1.15rem] font-bold leading-none tracking-tight text-[#064E7A]">
+            <span className="block font-serif text-[1.18rem] font-bold leading-[0.95] tracking-[-0.025em] text-[#064E7A]">
               AHEAD
             </span>
-            <span className="mt-0.5 block text-[0.64rem] font-extrabold uppercase tracking-[0.30em] text-[#B96543]">
+
+            <span className="mt-1 block text-[0.61rem] font-extrabold uppercase tracking-[0.31em] text-[#B96543]">
               Initiatives
             </span>
           </span>
         </Link>
 
-        {/* Small vertical divider */}
+        {/* Brand separator */}
+
         <div
           aria-hidden
-          className="hidden h-8 w-px bg-gradient-to-b from-transparent via-[#064E7A]/18 to-transparent sm:block"
+          className="mx-4 hidden h-8 w-px bg-gradient-to-b from-transparent via-[#064E7A]/14 to-transparent sm:block lg:mx-5"
         />
 
-        {/* Chapter pills */}
+        {/* ──────────────────────────────────────
+            Chapter navigation
+        ─────────────────────────────────────── */}
+
         <nav
           ref={barRef}
           aria-label="Chapters"
-          className="scrollbar-none -mb-px flex flex-1 items-center gap-1 overflow-x-auto py-3"
+          className="scrollbar-none flex flex-1 items-center gap-1 overflow-x-auto py-2.5 sm:gap-1.5"
         >
-          {chapters.map((c) => {
-            const current = active === c.slug;
+          {chapters.map((chapter) => {
+            const current =
+              active ===
+              chapter.slug;
 
             return (
               <a
-                key={c.slug}
-                href={`#${c.slug}`}
-                aria-current={current ? "true" : undefined}
-                className="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2]"
-                style={{
-                  color: current ? "#fff8ea" : "rgba(16, 42, 45, 0.76)",
-                  backgroundColor: current ? "#064E7A" : "rgba(255, 248, 234, 0.48)",
-                  border: current
-                    ? "1px solid rgba(6,78,122,0.92)"
-                    : "1px solid rgba(6,78,122,0.12)",
-                  boxShadow: current
-                    ? "0 8px 20px rgba(6,78,122,0.22)"
-                    : "0 1px 0 rgba(255,255,255,0.60)",
-                }}
+                key={chapter.slug}
+                href={`#${chapter.slug}`}
+                aria-current={
+                  current
+                    ? "true"
+                    : undefined
+                }
+                className={`group relative shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-[0.82rem] font-semibold transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2] sm:text-[0.84rem] ${
+                  current
+                    ? "text-[#FFF8EA]"
+                    : "text-[#344F59] hover:text-[#064E7A]"
+                }`}
               >
+                {/* Active chapter */}
                 {current && (
                   <motion.span
                     layoutId="chapter-pill"
-                    className="absolute inset-0 -z-10 rounded-full"
+                    className="absolute inset-0 rounded-full"
                     style={{
                       background:
-                        "linear-gradient(135deg, #064E7A 0%, #075985 52%, #0891B2 100%)",
+                        "linear-gradient(135deg, #064E7A 0%, #075985 52%, #087F9C 100%)",
+                      boxShadow:
+                        "0 7px 18px rgba(6,78,122,0.18)",
                     }}
                     transition={{
                       type: "spring",
@@ -183,21 +340,46 @@ export default function ChapterNav({ chapters }: { chapters: Chapter[] }) {
                   />
                 )}
 
-                <span className="relative z-10">{c.label}</span>
+                {/* Inactive hover wash */}
+                {!current && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 rounded-full bg-[#E6F8FA]/0 transition-colors duration-200 group-hover:bg-[#E6F8FA]/70"
+                  />
+                )}
+
+                <span className="relative z-10">
+                  {chapter.label}
+                </span>
+
+                {/* Editorial aqua underline on hover */}
+                {!current && (
+                  <span
+                    aria-hidden
+                    className="absolute bottom-[4px] left-1/2 h-px w-0 -translate-x-1/2 bg-[#0891B2]/65 transition-all duration-300 group-hover:w-5"
+                  />
+                )}
               </a>
             );
           })}
         </nav>
       </div>
 
-      {/* Reading thread */}
-      <div aria-hidden className="relative h-[3px] w-full overflow-hidden bg-[#064E7A]/8">
+      {/* ────────────────────────────────────────
+          Page reading thread
+      ───────────────────────────────────────── */}
+
+      <div
+        aria-hidden
+        className="relative h-[2px] w-full overflow-hidden bg-[#064E7A]/6"
+      >
         <motion.div
           className="absolute inset-y-0 left-0"
           style={{
-            width: progressWidth,
+            width:
+              progressWidth,
             background:
-              "linear-gradient(90deg, #064E7A 0%, #0891B2 42%, #67E8F9 62%, #D8A441 82%, #B96543 100%)",
+              "linear-gradient(90deg, #064E7A 0%, #0891B2 40%, #67E8F9 63%, #D8A441 83%, #B96543 100%)",
           }}
         />
       </div>
