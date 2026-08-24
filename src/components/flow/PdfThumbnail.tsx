@@ -9,6 +9,10 @@ import {
   FileText,
   LoaderCircle,
 } from "lucide-react";
+import type {
+  PDFDocumentLoadingTask,
+  RenderTask,
+} from "pdfjs-dist";
 
 type RenderState =
   | "idle"
@@ -153,17 +157,11 @@ export default function PdfThumbnail({
     let cancelled = false;
 
     let loadingTask:
-      | {
-          destroy: () =>
-            Promise<void>;
-        }
+      | PDFDocumentLoadingTask
       | undefined;
 
     let renderTask:
-      | {
-          cancel: () => void;
-          promise: Promise<void>;
-        }
+      | RenderTask
       | undefined;
 
     const renderPageOne =
