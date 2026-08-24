@@ -35,7 +35,7 @@ import {
 } from "@/lib/content";
 
 import { createClient } from "@/lib/supabase/server";
-import { t } from "@/lib/types";
+import { t, type MediaRow } from "@/lib/types";
 
 /**
  * The single-flow site.
@@ -65,6 +65,108 @@ const navLabels: Record<string, string> = {
   contact: "Contact",
 };
 
+
+/**
+ * Hero slideshow is intentionally local and independent of Supabase.
+ *
+ * This preserves the three existing hero photographs and adds the
+ * three new photographs in the same sequence.
+ *
+ * Expected files:
+ *   public/hero/hero-children-sunset.jpg
+ *   public/hero/hero-education.jpg
+ *   public/hero/hero-farmland.jpg
+ *   public/hero/hero-agri.jpg
+ *   public/hero/hero-solar.jpg
+ *   public/hero/hero-plant.jpg
+ */
+const HERO_SLIDES = [
+  {
+    id: "hero-children-sunset",
+    title: "Children playing at sunset in rural India",
+    alt_text: {
+      en: "Children playing at sunset in rural India",
+    },
+    caption: {},
+    collection: "hero",
+    source: "local",
+    file_path: "/hero/hero-children-sunset.jpg",
+    url: null,
+    drive_file_id: null,
+    status: "published",
+    sort_order: 1,
+  },
+  {
+    id: "hero-education",
+    title: "Children learning with slates in a rural school",
+    alt_text: {
+      en: "Children learning with slates in a rural school",
+    },
+    caption: {},
+    collection: "hero",
+    source: "local",
+    file_path: "/hero/hero-education.jpg",
+    url: null,
+    drive_file_id: null,
+    status: "published",
+    sort_order: 3,
+  },
+  {
+    id: "hero-farmland",
+    title: "Aerial view of lush green farmlands in Eastern India",
+    alt_text: {
+      en: "Aerial view of lush green farmlands in Eastern India",
+    },
+    caption: {},
+    collection: "hero",
+    source: "local",
+    file_path: "/hero/hero-farmland.jpg",
+    url: null,
+    drive_file_id: null,
+    status: "published",
+    sort_order: 0,
+  },
+  {
+    id: "hero-agri",
+    title: "hero-agri.jpg",
+    alt_text: {},
+    caption: {},
+    collection: "hero",
+    source: "local",
+    file_path: "/hero/hero-agri.jpg",
+    url: null,
+    drive_file_id: null,
+    status: "published",
+    sort_order: 2,
+  },
+  {
+    id: "hero-solar",
+    title: "hero-solar.jpg",
+    alt_text: {},
+    caption: {},
+    collection: "hero",
+    source: "local",
+    file_path: "/hero/hero-solar.jpg",
+    url: null,
+    drive_file_id: null,
+    status: "published",
+    sort_order: 4,
+  },
+  {
+    id: "hero-plant",
+    title: "hero-plant.jpg",
+    alt_text: {},
+    caption: {},
+    collection: "hero",
+    source: "local",
+    file_path: "/hero/hero-plant.jpg",
+    url: null,
+    drive_file_id: null,
+    status: "published",
+    sort_order: 5,
+  },
+] as unknown as MediaRow[];
+
 export default async function Home() {
   // Draft preview: staff sessions read through RLS, which reveals drafts.
   const { isEnabled: preview } = await draftMode();
@@ -77,7 +179,6 @@ export default async function Home() {
     sections,
     documents,
     people,
-    heroSlides,
     notices,
     settings,
     videos,
@@ -92,7 +193,6 @@ export default async function Home() {
     getSections(db),
     getDocuments(db),
     getPeople(db),
-    getMedia("hero", db),
     getActiveNotices(db),
     getSettings(db),
     getVideos(9, db),
@@ -237,7 +337,7 @@ export default async function Home() {
             hero.subtitle
           )}
           stats={heroStats}
-          slides={heroSlides}
+          slides={HERO_SLIDES}
         />
       )}
 
