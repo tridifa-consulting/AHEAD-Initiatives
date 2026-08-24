@@ -295,12 +295,7 @@ function PublicationCard({
 
   const pdf =
     downloadable &&
-    (
-      document.mime_type
-        ?.toLowerCase() ===
-        "application/pdf" ||
-      isPdf(href)
-    );
+    isPdf(href);
 
   const content = (
     <>
