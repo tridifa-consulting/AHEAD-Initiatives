@@ -320,6 +320,7 @@ export default function PdfThumbnail({
 
           renderTask =
             page.render({
+              canvas,
               canvasContext:
                 context,
               viewport,
