@@ -20,7 +20,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import type { DocumentRow } from "@/lib/types";
-import { documentHref } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -69,6 +68,41 @@ function collectionLabel(
         item.key === subcategory
     )?.label ?? ""
   );
+}
+
+/*
+ * Publication availability is determined from the actual stored
+ * document locations, not the legacy file_available boolean.
+ *
+ * This is important because several older publication rows still have
+ * file_available=false even though external PDF links now exist.
+ *
+ * Priority:
+ *   1. external_url
+ *   2. drive_url
+ *   3. file_path
+ *
+ * A publication is "In print" only when none of these contains a usable URL.
+ */
+function publicationHref(
+  document: DocumentRow
+) {
+  const candidates = [
+    document.external_url,
+    document.drive_url,
+    document.file_path,
+  ];
+
+  for (const candidate of candidates) {
+    if (
+      typeof candidate === "string" &&
+      candidate.trim().length > 0
+    ) {
+      return candidate.trim();
+    }
+  }
+
+  return null;
 }
 
 function isPdf(href?: string | null) {
@@ -249,7 +283,7 @@ function PublicationCard({
   reduced: boolean | null;
 }) {
   const href =
-    documentHref(document);
+    publicationHref(document);
 
   const collection =
     collectionLabel(
@@ -260,7 +294,13 @@ function PublicationCard({
     Boolean(href);
 
   const pdf =
-    isPdf(href);
+    downloadable &&
+    (
+      document.mime_type
+        ?.toLowerCase() ===
+        "application/pdf" ||
+      isPdf(href)
+    );
 
   const content = (
     <>
@@ -828,7 +868,7 @@ export default function PublicationsExplorer({
       {/* Archive note */}
       <div className="mt-8 border-t border-[#064E7A]/8 pt-5">
         <p className="text-xs font-medium leading-relaxed text-[#526B75]/62">
-          Titles without a download link are available in print from AHEAD&apos;s office.
+          Publications without a digital file link are available in print from AHEAD&apos;s office.
         </p>
       </div>
     </div>
