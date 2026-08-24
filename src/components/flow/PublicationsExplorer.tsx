@@ -20,6 +20,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import type { DocumentRow } from "@/lib/types";
+import PdfThumbnail from "./PdfThumbnail";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -209,6 +210,94 @@ function PdfPreview({
 }
 
 /* ─────────────────────────────────────────────────────────────
+   Adaptive PDF preview
+
+   Desktop browsers keep the existing native first-page iframe because
+   it already works well there.
+
+   Touch/mobile devices use PDF.js so Android/iOS cannot replace the
+   card with their own "PDF / filename / Open" interface.
+───────────────────────────────────────────────────────────── */
+
+function AdaptivePdfPreview({
+  href,
+  title,
+}: {
+  href: string;
+  title: string;
+}) {
+  const [mode, setMode] =
+    useState<
+      "checking" |
+      "pdfjs" |
+      "native"
+    >("checking");
+
+  useEffect(() => {
+    const ua =
+      navigator.userAgent;
+
+    const mobileOS =
+      /Android|iPhone|iPad|iPod/i.test(
+        ua
+      );
+
+    /*
+     * iPadOS can report itself as Macintosh when requesting
+     * desktop-class websites.
+     */
+    const iPadDesktopMode =
+      navigator.platform ===
+        "MacIntel" &&
+      navigator.maxTouchPoints >
+        1;
+
+    const coarsePointer =
+      typeof window
+        .matchMedia ===
+      "function"
+        ? window.matchMedia(
+            "(hover: none) and (pointer: coarse)"
+          ).matches
+        : false;
+
+    setMode(
+      mobileOS ||
+        iPadDesktopMode ||
+        coarsePointer
+        ? "pdfjs"
+        : "native"
+    );
+  }, []);
+
+  if (
+    mode === "checking"
+  ) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-[#EEE6D8]">
+        <FileText
+          aria-hidden
+          className="h-9 w-9 text-[#064E7A]/20"
+        />
+      </div>
+    );
+  }
+
+  return mode ===
+    "pdfjs" ? (
+    <PdfThumbnail
+      href={href}
+      title={title}
+    />
+  ) : (
+    <PdfPreview
+      href={href}
+      title={title}
+    />
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
    Print-only visual cover
 ───────────────────────────────────────────────────────────── */
 
@@ -302,7 +391,7 @@ function PublicationCard({
       {/* ── Visual document preview ───────────── */}
       <div className="relative aspect-[3/4] overflow-hidden border-b border-[#064E7A]/10 bg-[#F0E8D9]">
         {href && pdf ? (
-          <PdfPreview
+          <AdaptivePdfPreview
             href={href}
             title={document.title}
           />
