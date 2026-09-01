@@ -423,106 +423,94 @@ export default async function Home() {
 
               {/* Institutional record */}
 
-              <Reveal delay={100}>
-                <aside className="relative">
-                  {/* Soft depth around the record */}
+<aside className="relative">
+  {/* Soft depth around the record */}
 
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-br from-[#0891B2]/8 via-transparent to-[#D8A441]/10 blur-xl"
-                  />
+  <div
+    aria-hidden
+    className="pointer-events-none absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-br from-[#0891B2]/8 via-transparent to-[#D8A441]/10 blur-xl"
+  />
 
-                  <dl className="relative overflow-hidden rounded-[1.75rem] border border-[#064E7A]/14 bg-[#FFFBF2] shadow-[0_20px_55px_rgba(6,78,122,0.10)]">
-                    {/* Top identity stripe */}
+  <dl className="relative overflow-hidden rounded-[1.75rem] border border-[#064E7A]/14 bg-[#FFFBF2] shadow-[0_20px_55px_rgba(6,78,122,0.10)]">
+    {/* Top identity stripe */}
 
-                    <div
-                      aria-hidden
-                      className="h-1.5 w-full bg-gradient-to-r from-[#064E7A] via-[#0891B2] to-[#67E8F9]"
-                    />
+    <div
+      aria-hidden
+      className="h-1.5 w-full bg-gradient-to-r from-[#064E7A] via-[#0891B2] to-[#67E8F9]"
+    />
 
-                    <div className="p-7 sm:p-8">
-                      {/* Record heading */}
+    <div className="p-7 sm:p-8">
+      {/* Record heading */}
 
-                      <div className="mb-6">
-                        <div className="flex items-center gap-3">
-                          <span className="h-px w-8 bg-[#B96543]/70" />
+      <div className="mb-6">
+        <div className="flex items-center gap-3">
+          <span className="h-px w-8 bg-[#B96543]/70" />
 
-                          <div className="font-[var(--font-display)] text-[0.68rem] font-extrabold uppercase tracking-[0.28em] text-[#B96543]">
-                            From the
-                            record
-                          </div>
-                        </div>
+          <div className="font-[var(--font-display)] text-[0.68rem] font-extrabold uppercase tracking-[0.28em] text-[#B96543]">
+            From the record
+          </div>
+        </div>
 
-                        <div className="mt-5 h-px w-full bg-gradient-to-r from-[#064E7A]/16 via-[#0891B2]/12 to-transparent" />
-                      </div>
+        <div className="mt-5 h-px w-full bg-gradient-to-r from-[#064E7A]/16 via-[#0891B2]/12 to-transparent" />
+      </div>
 
-                      {/* Registered */}
+      {/* Registered */}
 
-                      <div className="pb-5">
-                        <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
-                          Registered
-                        </dt>
+      <div className="pb-5">
+        <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
+          Registered
+        </dt>
 
-                        <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
-                          {
-                            registration.registered
-                          }
-                        </dd>
-                      </div>
+        <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
+          {registration.registered}
+        </dd>
+      </div>
 
-                      {/* CIN */}
+      {/* CIN */}
 
-                      <div className="border-t border-[#064E7A]/10 py-5">
-                        <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
-                          CIN
-                        </dt>
+      <div className="border-t border-[#064E7A]/10 py-5">
+        <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
+          CIN
+        </dt>
 
-                        <dd className="mt-1.5 break-words font-[var(--font-display)] text-[0.94rem] font-bold leading-relaxed text-[#064E7A]">
-                          {
-                            registration.cin
-                          }
-                        </dd>
-                      </div>
+        <dd className="mt-1.5 break-words font-[var(--font-display)] text-[0.94rem] font-bold leading-relaxed text-[#064E7A]">
+          {registration.cin}
+        </dd>
+      </div>
 
-                      {/* MCA licence */}
+      {/* MCA licence */}
 
-                      <div className="border-t border-[#064E7A]/10 py-5">
-                        <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
-                          MCA
-                          licence
-                        </dt>
+      <div className="border-t border-[#064E7A]/10 py-5">
+        <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
+          MCA licence
+        </dt>
 
-                        <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
-                          {
-                            registration.licence
-                          }
-                        </dd>
-                      </div>
+        <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
+          {registration.licence}
+        </dd>
+      </div>
 
-                      {/* FCRA registration */}
+      {/* FCRA registration */}
 
-                      <div className="border-t border-[#064E7A]/10 pt-5">
-                        <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
-                          FCRA
-                          registration
-                        </dt>
+      <div className="border-t border-[#064E7A]/10 pt-5">
+        <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
+          FCRA registration
+        </dt>
 
-                        <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
-                          {
-                            registration.fcra
-                          }
-                        </dd>
-                      </div>
-                    </div>
+        <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
+          {registration.fcra}
+        </dd>
+      </div>
+    </div>
 
-                    {/* Bottom archival accent */}
+    {/* Bottom archival accent */}
 
-                    <div
-                      aria-hidden
-                      className="h-[3px] w-full bg-gradient-to-r from-[#D8A441]/65 via-[#B96543]/45 to-transparent"
-                    />
-                  </dl>
-                </aside>
+    <div
+      aria-hidden
+      className="h-[3px] w-full bg-gradient-to-r from-[#D8A441]/65 via-[#B96543]/45 to-transparent"
+    />
+  </dl>
+</aside>
               </Reveal>
             </div>
           </div>
