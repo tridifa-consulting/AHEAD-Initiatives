@@ -353,7 +353,7 @@ export default async function Home() {
         />
       )}
 
-      {/* ─────────────────────────────────────────────
+           {/* ─────────────────────────────────────────────
           OUR STORY
       ───────────────────────────────────────────── */}
 
@@ -421,136 +421,110 @@ export default async function Home() {
                 </article>
               </Reveal>
 
-              <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-16">
-  {/* Story narrative */}
+              {/* Institutional record */}
 
-  <Reveal>
-    <article className="relative overflow-hidden rounded-[1.75rem] border border-[#064E7A]/12 bg-[#FFF8EA]/90 shadow-[0_20px_60px_rgba(6,78,122,0.08)]">
-      {/* Vertical identity accent */}
+              <aside className="relative">
+                {/* Soft depth around the record */}
 
-      <div
-        aria-hidden
-        className="absolute inset-y-0 left-0 w-[4px] bg-gradient-to-b from-[#064E7A] via-[#0891B2] to-[#67E8F9]"
-      />
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-br from-[#0891B2]/8 via-transparent to-[#D8A441]/10 blur-xl"
+                />
 
-      <div className="px-7 py-8 sm:px-9 sm:py-10 lg:px-11 lg:py-12">
-        {/* Archival divider */}
+                <dl className="relative overflow-hidden rounded-[1.75rem] border border-[#064E7A]/14 bg-[#FFFBF2] shadow-[0_20px_55px_rgba(6,78,122,0.10)]">
+                  {/* Top identity stripe */}
 
-        <div
-          aria-hidden
-          className="mb-8 flex items-center gap-3"
-        >
-          <span className="h-px w-12 bg-[#0891B2]/55" />
+                  <div
+                    aria-hidden
+                    className="h-1.5 w-full bg-gradient-to-r from-[#064E7A] via-[#0891B2] to-[#67E8F9]"
+                  />
 
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#D8A441]" />
+                  <div className="p-7 sm:p-8">
+                    {/* Record heading */}
 
-          <span className="h-px flex-1 bg-gradient-to-r from-[#D8A441]/35 to-transparent" />
-        </div>
+                    <div className="mb-6">
+                      <div className="flex items-center gap-3">
+                        <span className="h-px w-8 bg-[#B96543]/70" />
 
-        <Prose
-          text={t(
-            bySlug[
-              "story"
-            ].body
-          )}
-          className="max-w-3xl text-[1.03rem] font-medium leading-[1.85] text-[#243841] sm:text-[1.08rem]"
-        />
-      </div>
-    </article>
-  </Reveal>
+                        <div className="font-[var(--font-display)] text-[0.68rem] font-extrabold uppercase tracking-[0.28em] text-[#B96543]">
+                          From the record
+                        </div>
+                      </div>
 
-  {/* Institutional record */}
+                      <div className="mt-5 h-px w-full bg-gradient-to-r from-[#064E7A]/16 via-[#0891B2]/12 to-transparent" />
+                    </div>
 
-  <aside className="relative">
-    {/* Soft depth around the record */}
+                    {/* Registered */}
 
-    <div
-      aria-hidden
-      className="pointer-events-none absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-br from-[#0891B2]/8 via-transparent to-[#D8A441]/10 blur-xl"
-    />
+                    <div className="pb-5">
+                      <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
+                        Registered
+                      </dt>
 
-    <dl className="relative overflow-hidden rounded-[1.75rem] border border-[#064E7A]/14 bg-[#FFFBF2] shadow-[0_20px_55px_rgba(6,78,122,0.10)]">
-      {/* Top identity stripe */}
+                      <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
+                        {
+                          registration.registered
+                        }
+                      </dd>
+                    </div>
 
-      <div
-        aria-hidden
-        className="h-1.5 w-full bg-gradient-to-r from-[#064E7A] via-[#0891B2] to-[#67E8F9]"
-      />
+                    {/* CIN */}
 
-      <div className="p-7 sm:p-8">
-        {/* Record heading */}
+                    <div className="border-t border-[#064E7A]/10 py-5">
+                      <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
+                        CIN
+                      </dt>
 
-        <div className="mb-6">
-          <div className="flex items-center gap-3">
-            <span className="h-px w-8 bg-[#B96543]/70" />
+                      <dd className="mt-1.5 break-words font-[var(--font-display)] text-[0.94rem] font-bold leading-relaxed text-[#064E7A]">
+                        {
+                          registration.cin
+                        }
+                      </dd>
+                    </div>
 
-            <div className="font-[var(--font-display)] text-[0.68rem] font-extrabold uppercase tracking-[0.28em] text-[#B96543]">
-              From the record
+                    {/* MCA licence */}
+
+                    <div className="border-t border-[#064E7A]/10 py-5">
+                      <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
+                        MCA
+                        licence
+                      </dt>
+
+                      <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
+                        {
+                          registration.licence
+                        }
+                      </dd>
+                    </div>
+
+                    {/* FCRA registration */}
+
+                    <div className="border-t border-[#064E7A]/10 pt-5">
+                      <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
+                        FCRA
+                        registration
+                      </dt>
+
+                      <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
+                        {
+                          registration.fcra
+                        }
+                      </dd>
+                    </div>
+                  </div>
+
+                  {/* Bottom archival accent */}
+
+                  <div
+                    aria-hidden
+                    className="h-[3px] w-full bg-gradient-to-r from-[#D8A441]/65 via-[#B96543]/45 to-transparent"
+                  />
+                </dl>
+              </aside>
             </div>
           </div>
-
-          <div className="mt-5 h-px w-full bg-gradient-to-r from-[#064E7A]/16 via-[#0891B2]/12 to-transparent" />
-        </div>
-
-        {/* Registered */}
-
-        <div className="pb-5">
-          <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
-            Registered
-          </dt>
-
-          <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
-            {registration.registered}
-          </dd>
-        </div>
-
-        {/* CIN */}
-
-        <div className="border-t border-[#064E7A]/10 py-5">
-          <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
-            CIN
-          </dt>
-
-          <dd className="mt-1.5 break-words font-[var(--font-display)] text-[0.94rem] font-bold leading-relaxed text-[#064E7A]">
-            {registration.cin}
-          </dd>
-        </div>
-
-        {/* MCA licence */}
-
-        <div className="border-t border-[#064E7A]/10 py-5">
-          <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
-            MCA licence
-          </dt>
-
-          <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
-            {registration.licence}
-          </dd>
-        </div>
-
-        {/* FCRA registration */}
-
-        <div className="border-t border-[#064E7A]/10 pt-5">
-          <dt className="font-[var(--font-display)] text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#526B75]">
-            FCRA registration
-          </dt>
-
-          <dd className="mt-1.5 font-[var(--font-display)] text-[0.98rem] font-bold text-[#064E7A]">
-            {registration.fcra}
-          </dd>
-        </div>
-      </div>
-
-      {/* Bottom archival accent */}
-
-      <div
-        aria-hidden
-        className="h-[3px] w-full bg-gradient-to-r from-[#D8A441]/65 via-[#B96543]/45 to-transparent"
-      />
-    </dl>
-  </aside>
-</div>
-
+        </Chapter>
+      )}
       {/* ─────────────────────────────────────────────
           PHILOSOPHY & MISSION
       ───────────────────────────────────────────── */}
