@@ -59,7 +59,6 @@ const navLabels: Record<string, string> = {
   publications: "Publications",
   blog: "Updates",
   media: "Media",
-  social: "Social",
   reports: "Reports",
   partners: "Partners",
   contact: "Contact",
@@ -271,7 +270,6 @@ export default async function Home() {
     "publications",
     "blog",
     "media",
-    "social",
     "reports",
     "partners",
     "contact",
@@ -732,21 +730,15 @@ export default async function Home() {
       )}
 
       {/* ─────────────────────────────────────────────
-          MEDIA
+          VIDEOS & SOCIAL MEDIA
       ───────────────────────────────────────────── */}
 
       {bySlug["media"] && (
         <Chapter
           slug="media"
           number={num("media")}
-          title={t(
-            bySlug["media"]
-              .title
-          )}
-          subtitle={t(
-            bySlug["media"]
-              .subtitle
-          )}
+          title="Videos & Social Media"
+          subtitle="Documentaries, learning films and recent updates from AHEAD's digital channels"
           tone="white"
         >
           <div className="space-y-14">
@@ -763,12 +755,21 @@ export default async function Home() {
               0 && (
               <section
                 aria-label="From our YouTube channel"
+                className="relative border-t border-[#064E7A]/10 pt-10 sm:pt-12"
               >
-                <h3 className="mb-5 font-serif text-lg font-semibold text-[#16324F]">
-                  From our
-                  YouTube
-                  channel
-                </h3>
+                <div className="mb-6">
+                  <div className="mb-2 flex items-center gap-3">
+                    <span className="h-px w-8 bg-[#B96543]/55" />
+
+                    <span className="font-[var(--font-display)] text-[0.63rem] font-extrabold uppercase tracking-[0.22em] text-[#526B75]/70">
+                      YouTube
+                    </span>
+                  </div>
+
+                  <h3 className="font-serif text-[1.55rem] font-bold tracking-[-0.025em] text-[#064E7A] sm:text-[1.8rem]">
+                    From our YouTube channel
+                  </h3>
+                </div>
 
                 <VideoGrid
                   videos={
@@ -777,30 +778,13 @@ export default async function Home() {
                 />
               </section>
             )}
+
+            <SocialCards
+              posts={
+                socialPosts
+              }
+            />
           </div>
-        </Chapter>
-      )}
-
-      {/* ─────────────────────────────────────────────
-          SOCIAL
-      ───────────────────────────────────────────── */}
-
-      {bySlug["social"] && (
-        <Chapter
-          slug="social"
-          number={num(
-            "social"
-          )}
-          title={t(
-            bySlug["social"]
-              .title
-          )}
-        >
-          <SocialCards
-            posts={
-              socialPosts
-            }
-          />
         </Chapter>
       )}
 
