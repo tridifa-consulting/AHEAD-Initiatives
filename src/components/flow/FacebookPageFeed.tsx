@@ -4,11 +4,19 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
-const FACEBOOK_PAGE_URL =
+const FACEBOOK_PUBLIC_URL =
   "https://www.facebook.com/people/AHEAD-Initiatives/61582729498601/";
 
+/**
+ * The Page Plugin is intentionally pointed at the stable numeric Page URL,
+ * not the public /people/... route. Meta's Page Plugin can fail silently
+ * when it does not recognise the supplied public route as an embeddable Page.
+ */
+const FACEBOOK_PLUGIN_PAGE_URL =
+  "https://www.facebook.com/61582729498601";
+
 const FACEBOOK_EMBED_URL =
-  "https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fpeople%2FAHEAD-Initiatives%2F61582729498601%2F&tabs=timeline&width=500&height=620&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false";
+  "https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2F61582729498601&tabs=timeline&width=500&height=620&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false";
 
 export default function FacebookPageFeed() {
   return (
@@ -36,13 +44,12 @@ export default function FacebookPageFeed() {
         </div>
 
         <a
-          href={FACEBOOK_PAGE_URL}
+          href={FACEBOOK_PUBLIC_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex min-h-10 w-fit items-center gap-2 rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] px-4 py-2.5 font-[var(--font-display)] text-[0.66rem] font-bold text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] hover:text-[#075985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2]"
         >
           Visit AHEAD on Facebook
-
           <ArrowUpRight className="h-3.5 w-3.5" />
         </a>
       </div>
@@ -66,13 +73,12 @@ export default function FacebookPageFeed() {
 
       <div className="mt-7 flex justify-center sm:hidden">
         <a
-          href={FACEBOOK_PAGE_URL}
+          href={FACEBOOK_PUBLIC_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] px-5 py-2.5 font-[var(--font-display)] text-[0.68rem] font-bold text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] hover:text-[#075985]"
         >
           Visit AHEAD on Facebook
-
           <ArrowUpRight className="h-3.5 w-3.5" />
         </a>
       </div>
