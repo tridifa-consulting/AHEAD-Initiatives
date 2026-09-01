@@ -1,19 +1,16 @@
-"use client";
+
 
 import {
-  useMemo,
-  useState,
+  useRef,
 } from "react";
 import {
   ArrowUpRight,
-  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 const LINKEDIN_PAGE_URL =
   "https://www.linkedin.com/company/theahead-initiatives/";
-
-const INITIAL_VISIBLE = 4;
-const BATCH_SIZE = 4;
 
 const LINKEDIN_POSTS = [
   {
@@ -77,7 +74,7 @@ function LinkedInEmbed({
     `https://www.linkedin.com/embed/feed/update/urn:li:activity:${post.id}`;
 
   return (
-    <article className="min-w-0 overflow-hidden rounded-[1.35rem] border border-[#064E7A]/10 bg-[#FFFDF8] shadow-[0_8px_26px_rgba(6,78,122,0.055)]">
+    <article className="w-[88vw] max-w-[520px] shrink-0 snap-start overflow-hidden rounded-[1.35rem] border border-[#064E7A]/10 bg-[#FFFDF8] shadow-[0_8px_26px_rgba(6,78,122,0.055)] sm:w-[72vw] lg:w-[calc((100%-1.25rem)/2)] lg:max-w-none">
       <div className="flex items-center justify-between border-b border-[#064E7A]/8 px-4 py-3">
         <span className="font-[var(--font-display)] text-[0.58rem] font-extrabold uppercase tracking-[0.16em] text-[#0A66C2]">
           LinkedIn
@@ -102,7 +99,7 @@ function LinkedInEmbed({
           loading="lazy"
           allowFullScreen
           frameBorder="0"
-          className="block h-[570px] w-full border-0 sm:h-[600px]"
+          className="block h-[540px] w-full border-0 sm:h-[570px]"
         />
       </div>
     </article>
@@ -110,36 +107,32 @@ function LinkedInEmbed({
 }
 
 export default function LinkedInPosts() {
-  const [
-    visibleCount,
-    setVisibleCount,
-  ] = useState(
-    INITIAL_VISIBLE
-  );
+  const railRef =
+    useRef<HTMLDivElement>(null);
 
-  const visiblePosts =
-    useMemo(
-      () =>
-        LINKEDIN_POSTS.slice(
-          0,
-          visibleCount
-        ),
-      [visibleCount]
-    );
+  const scrollRail = (
+    direction: -1 | 1
+  ) => {
+    const rail =
+      railRef.current;
 
-  const hasMore =
-    visibleCount <
-    LINKEDIN_POSTS.length;
+    if (!rail) return;
 
-  const showMore = () => {
-    setVisibleCount(
-      (current) =>
-        Math.min(
-          current +
-            BATCH_SIZE,
-          LINKEDIN_POSTS.length
+    const amount =
+      Math.max(
+        320,
+        Math.floor(
+          rail.clientWidth * 0.9
         )
-    );
+      );
+
+    rail.scrollBy({
+      left:
+        direction *
+        amount,
+      behavior:
+        "smooth",
+    });
   };
 
   return (
@@ -147,7 +140,7 @@ export default function LinkedInPosts() {
       aria-label="Selected updates from AHEAD Initiatives on LinkedIn"
       className="relative border-t border-[#064E7A]/10 pt-10 sm:pt-12"
     >
-      <div className="mb-7 grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+      <div className="mb-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
           <div className="mb-2 flex items-center gap-3">
             <span className="h-px w-8 bg-[#0A66C2]/45" />
@@ -166,20 +159,47 @@ export default function LinkedInPosts() {
           </p>
         </div>
 
-        <a
-          href={LINKEDIN_PAGE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-10 w-fit items-center gap-2 rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] px-4 py-2.5 font-[var(--font-display)] text-[0.66rem] font-bold text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] hover:text-[#075985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2]"
-        >
-          Visit AHEAD on LinkedIn
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              scrollRail(-1)
+            }
+            aria-label="Previous LinkedIn posts"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2]"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
 
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </a>
+          <button
+            type="button"
+            onClick={() =>
+              scrollRail(1)
+            }
+            aria-label="Next LinkedIn posts"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2]"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+
+          <a
+            href={LINKEDIN_PAGE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-1 inline-flex min-h-10 w-fit items-center gap-2 rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] px-4 py-2.5 font-[var(--font-display)] text-[0.66rem] font-bold text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] hover:text-[#075985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2]"
+          >
+            Visit AHEAD on LinkedIn
+
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
+        </div>
       </div>
 
-      <div className="grid items-start gap-5 lg:grid-cols-2">
-        {visiblePosts.map(
+      <div
+        ref={railRef}
+        className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 pr-4 [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden"
+      >
+        {LINKEDIN_POSTS.map(
           (
             post,
             index
@@ -193,39 +213,14 @@ export default function LinkedInPosts() {
         )}
       </div>
 
-      <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-        {hasMore && (
-          <button
-            type="button"
-            onClick={
-              showMore
-            }
-            className="group inline-flex min-h-10 items-center gap-2 rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] px-5 py-2.5 font-[var(--font-display)] text-[0.68rem] font-bold text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] hover:text-[#075985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2]"
-          >
-            Show more LinkedIn posts
+      <div className="mt-3 flex items-center justify-between gap-4">
+        <p className="text-[0.66rem] font-medium text-[#526B75]/58">
+          Swipe or use the arrows to browse all {LINKEDIN_POSTS.length} posts.
+        </p>
 
-            <span className="text-[#526B75]/50">
-              {Math.min(
-                BATCH_SIZE,
-                LINKEDIN_POSTS.length -
-                  visibleCount
-              )}
-            </span>
-
-            <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5" />
-          </button>
-        )}
-
-        <a
-          href={LINKEDIN_PAGE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] px-5 py-2.5 font-[var(--font-display)] text-[0.68rem] font-bold text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] hover:text-[#075985]"
-        >
-          Visit AHEAD on LinkedIn
-
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </a>
+        <span className="hidden font-[var(--font-display)] text-[0.6rem] font-extrabold uppercase tracking-[0.14em] text-[#0A66C2]/55 sm:inline">
+          {LINKEDIN_POSTS.length} posts
+        </span>
       </div>
     </section>
   );
