@@ -35,6 +35,7 @@ import {
 } from "@/lib/content";
 
 import { createClient } from "@/lib/supabase/server";
+import { getYouTubeFeedVideos } from "@/lib/youtube-feed";
 import { t, type MediaRow } from "@/lib/types";
 
 /**
@@ -180,7 +181,8 @@ export default async function Home() {
     people,
     notices,
     settings,
-    videos,
+    fallbackVideos,
+    youtubeFeedVideos,
     socialPosts,
     blogPosts,
     galleryEdu,
@@ -195,6 +197,7 @@ export default async function Home() {
     getActiveNotices(db),
     getSettings(db),
     getVideos(9, db),
+    getYouTubeFeedVideos(9),
     getSocialPosts(8, db),
     getBlogPosts(6, db),
     getMedia("gallery_education", db),
@@ -203,6 +206,13 @@ export default async function Home() {
     getMedia("av_learning", db),
     getMedia("people", db),
   ]);
+
+  // Prefer the official YouTube Atom feed. The existing CMS/Supabase
+  // video rows remain a temporary fallback while the migration is phased in.
+  const videos =
+    youtubeFeedVideos && youtubeFeedVideos.length > 0
+      ? youtubeFeedVideos
+      : fallbackVideos;
 
   const portraits =
     Object.fromEntries(
