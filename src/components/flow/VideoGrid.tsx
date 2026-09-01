@@ -10,9 +10,20 @@ import {
 import {
   Play,
 } from "lucide-react";
-import type { VideoRow } from "@/lib/types";
 
 const ease = [0.22, 1, 0.36, 1] as const;
+
+/**
+ * Deliberately narrower than the old Supabase VideoRow type.
+ * Both the existing CMS rows and the new YouTube Atom-feed rows satisfy
+ * this shape, which lets us migrate the data source without changing the UI.
+ */
+export type VideoGridItem = {
+  id: string;
+  title: string;
+  youtube_video_id: string;
+  thumbnail_url?: string | null;
+};
 
 /**
  * YouTube facade pattern:
@@ -23,7 +34,7 @@ function VideoCard({
   v,
   index,
 }: {
-  v: VideoRow;
+  v: VideoGridItem;
   index: number;
 }) {
   const [
@@ -131,7 +142,7 @@ function VideoCard({
 export default function VideoGrid({
   videos,
 }: {
-  videos: VideoRow[];
+  videos: VideoGridItem[];
 }) {
   if (
     videos.length === 0
