@@ -21,6 +21,8 @@ import BlogCards from "@/components/flow/BlogCards";
 import PartnersGrid from "@/components/flow/PartnersGrid";
 import SocialCards from "@/components/flow/SocialCards";
 import VideoGrid from "@/components/flow/VideoGrid";
+import XTimeline from "@/components/flow/XTimeline";
+
 
 import {
   getActiveNotices,
@@ -791,7 +793,9 @@ export default async function Home() {
           </div>
         </section>
       )}
-
+      
+<XTimeline />
+      
       <SocialCards posts={socialPosts} />
     </div>
   </Chapter>
