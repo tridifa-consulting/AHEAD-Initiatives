@@ -739,64 +739,63 @@ export default async function Home() {
         </Chapter>
       )}
 
-      {/* ─────────────────────────────────────────────
-          VIDEOS & SOCIAL MEDIA
-      ───────────────────────────────────────────── */}
+    {/* ─────────────────────────────────────────────
+    VIDEOS & SOCIAL MEDIA
+───────────────────────────────────────────── */}
 
-      {bySlug["media"] && (
-        <Chapter
-          slug="media"
-          number={num("media")}
-          title="Videos & Social Media"
-          subtitle="Documentaries, learning films and recent updates from AHEAD's digital channels"
-          tone="white"
+{bySlug["media"] && (
+  <Chapter
+    slug="media"
+    number={num("media")}
+    title="Videos & Social Media"
+    subtitle="Documentaries, learning films and recent updates from AHEAD's digital channels"
+    tone="white"
+  >
+    <div className="space-y-14">
+      <FilmLibrary
+        documentaries={avDocs}
+        learning={avLearning}
+      />
+
+      {videos.length > 0 && (
+        <section
+          aria-label="From our YouTube channel"
+          className="relative border-t border-[#064E7A]/10 pt-10 sm:pt-12"
         >
-          <div className="space-y-14">
-            <FilmLibrary
-              documentaries={
-                avDocs
-              }
-              learning={
-                avLearning
-              }
-            />
+          <div className="mb-6">
+            <div className="mb-2 flex items-center gap-3">
+              <span className="h-px w-8 bg-[#B96543]/55" />
 
-            {videos.length >
-              0 && (
-              <section
-                aria-label="From our YouTube channel"
-                className="relative border-t border-[#064E7A]/10 pt-10 sm:pt-12"
-              >
-                <div className="mb-6">
-                  <div className="mb-2 flex items-center gap-3">
-                    <span className="h-px w-8 bg-[#B96543]/55" />
+              <span className="font-[var(--font-display)] text-[0.63rem] font-extrabold uppercase tracking-[0.22em] text-[#526B75]/70">
+                YouTube
+              </span>
+            </div>
 
-                    <span className="font-[var(--font-display)] text-[0.63rem] font-extrabold uppercase tracking-[0.22em] text-[#526B75]/70">
-                      YouTube
-                    </span>
-                  </div>
-
-                  <h3 className="font-serif text-[1.55rem] font-bold tracking-[-0.025em] text-[#064E7A] sm:text-[1.8rem]">
-                    From our YouTube channel
-                  </h3>
-                </div>
-
-                <VideoGrid
-                  videos={
-                    videos
-                  }
-                />
-              </section>
-            )}
-
-            <SocialCards
-              posts={
-                socialPosts
-              }
-            />
+            <h3 className="font-serif text-[1.55rem] font-bold tracking-[-0.025em] text-[#064E7A] sm:text-[1.8rem]">
+              From our YouTube channel
+            </h3>
           </div>
-        </Chapter>
+
+          <VideoGrid videos={videos} />
+
+          <div className="mt-7 flex justify-center">
+            <a
+              href="https://www.youtube.com/@aheadinitiatives4836"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] px-5 py-2.5 font-[var(--font-display)] text-[0.68rem] font-bold text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] hover:text-[#075985]"
+            >
+              Visit our YouTube channel
+              <span aria-hidden>↗</span>
+            </a>
+          </div>
+        </section>
       )}
+
+      <SocialCards posts={socialPosts} />
+    </div>
+  </Chapter>
+)}
 
       {/* ─────────────────────────────────────────────
           REPORTS & TRANSPARENCY
