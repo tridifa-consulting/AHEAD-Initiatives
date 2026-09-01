@@ -10,7 +10,13 @@ import {
 } from "lucide-react";
 
 const X_PROFILE_URL =
+  "https://twitter.com/AHEADInitiates?ref_src=twsrc%5Etfw";
+
+const X_PUBLIC_URL =
   "https://x.com/AHEADInitiates";
+
+const WIDGET_SCRIPT =
+  "https://platform.twitter.com/widgets.js";
 
 declare global {
   interface Window {
@@ -24,65 +30,102 @@ declare global {
   }
 }
 
-function loadXWidgets() {
-  return new Promise<void>(
-    (resolve, reject) => {
+function ensureXWidgets(
+  onReady: () => void,
+  onError: () => void
+) {
+  if (
+    window.twttr?.widgets
+  ) {
+    onReady();
+    return () => {};
+  }
+
+  let script =
+    document.getElementById(
+      "twitter-wjs"
+    ) as HTMLScriptElement | null;
+
+  const handleLoad = () => {
+    // widgets.js can finish loading a moment before twttr.widgets is exposed.
+    let attempts = 0;
+
+    const check = () => {
       if (
         window.twttr?.widgets
       ) {
-        resolve();
+        onReady();
         return;
       }
 
-      const existing =
-        document.querySelector<HTMLScriptElement>(
-          'script[src="https://platform.x.com/widgets.js"]'
-        );
+      attempts += 1;
 
-      if (existing) {
-        existing.addEventListener(
-          "load",
-          () => resolve(),
-          { once: true }
-        );
-        existing.addEventListener(
-          "error",
-          () =>
-            reject(
-              new Error(
-                "Unable to load X widgets."
-              )
-            ),
-          { once: true }
-        );
+      if (attempts >= 20) {
+        onError();
         return;
       }
 
-      const script =
-        document.createElement(
-          "script"
-        );
-
-      script.src =
-        "https://platform.x.com/widgets.js";
-      script.async = true;
-      script.charset = "utf-8";
-
-      script.onload = () =>
-        resolve();
-
-      script.onerror = () =>
-        reject(
-          new Error(
-            "Unable to load X widgets."
-          )
-        );
-
-      document.body.appendChild(
-        script
+      window.setTimeout(
+        check,
+        100
       );
-    }
+    };
+
+    check();
+  };
+
+  const handleError = () =>
+    onError();
+
+  if (!script) {
+    script =
+      document.createElement(
+        "script"
+      );
+
+    script.id =
+      "twitter-wjs";
+
+    script.src =
+      WIDGET_SCRIPT;
+
+    script.async = true;
+    script.charset =
+      "utf-8";
+
+    document.body.appendChild(
+      script
+    );
+  }
+
+  script.addEventListener(
+    "load",
+    handleLoad
   );
+
+  script.addEventListener(
+    "error",
+    handleError
+  );
+
+  // The script may already have loaded before listeners were attached.
+  if (
+    window.twttr?.widgets
+  ) {
+    handleLoad();
+  }
+
+  return () => {
+    script?.removeEventListener(
+      "load",
+      handleLoad
+    );
+
+    script?.removeEventListener(
+      "error",
+      handleError
+    );
+  };
 }
 
 export default function XTimeline() {
@@ -138,7 +181,9 @@ export default function XTimeline() {
         }
       );
 
-    observer.observe(section);
+    observer.observe(
+      section
+    );
 
     return () =>
       observer.disconnect();
@@ -147,35 +192,29 @@ export default function XTimeline() {
   useEffect(() => {
     if (!shouldLoad) return;
 
-    let cancelled = false;
+    setFailed(false);
 
-    loadXWidgets()
-      .then(() => {
-        if (cancelled) {
-          return;
-        }
+    const cleanup =
+      ensureXWidgets(
+        () => {
+          const container =
+            embedRef.current;
 
-        const container =
-          embedRef.current;
+          if (
+            container &&
+            window.twttr
+              ?.widgets
+          ) {
+            window.twttr.widgets.load(
+              container
+            );
+          }
+        },
+        () =>
+          setFailed(true)
+      );
 
-        if (
-          container &&
-          window.twttr?.widgets
-        ) {
-          window.twttr.widgets.load(
-            container
-          );
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setFailed(true);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    return cleanup;
   }, [shouldLoad]);
 
   return (
@@ -204,7 +243,9 @@ export default function XTimeline() {
         </div>
 
         <a
-          href={X_PROFILE_URL}
+          href={
+            X_PUBLIC_URL
+          }
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex min-h-10 w-fit items-center gap-2 rounded-full border border-[#064E7A]/14 bg-[#FFFDF8] px-4 py-2.5 font-[var(--font-display)] text-[0.66rem] font-bold text-[#064E7A] transition-all duration-200 hover:border-[#0891B2]/35 hover:bg-[#EAFBFD] hover:text-[#075985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0891B2]"
@@ -218,13 +259,9 @@ export default function XTimeline() {
       <div className="overflow-hidden rounded-[1.4rem] border border-[#064E7A]/10 bg-[#FFFDF8] shadow-[0_8px_28px_rgba(6,78,122,0.055)]">
         {!shouldLoad && (
           <div className="flex min-h-[360px] items-center justify-center px-6 py-12">
-            <div className="text-center">
-              <div className="mx-auto mb-3 h-2 w-2 rounded-full bg-[#0891B2]/55" />
-
-              <p className="text-sm font-medium text-[#526B75]/60">
-                X updates will load as you approach this section.
-              </p>
-            </div>
+            <p className="text-sm font-medium text-[#526B75]/60">
+              X updates will load as you approach this section.
+            </p>
           </div>
         )}
 
@@ -232,15 +269,17 @@ export default function XTimeline() {
           <div className="flex min-h-[260px] items-center justify-center px-6 py-12">
             <div className="max-w-md text-center">
               <p className="font-serif text-lg font-bold text-[#064E7A]">
-                Visit AHEAD on X
+                X timeline could not be loaded
               </p>
 
               <p className="mt-2 text-sm font-medium leading-relaxed text-[#526B75]/65">
-                The embedded timeline is temporarily unavailable.
+                Browser privacy protection, an ad blocker, or a temporary X widget issue may be preventing the embedded timeline from loading.
               </p>
 
               <a
-                href={X_PROFILE_URL}
+                href={
+                  X_PUBLIC_URL
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-5 inline-flex items-center gap-2 rounded-full border border-[#064E7A]/14 bg-white px-4 py-2.5 font-[var(--font-display)] text-[0.66rem] font-bold text-[#064E7A] transition-colors hover:border-[#0891B2]/35 hover:bg-[#EAFBFD]"
@@ -254,7 +293,9 @@ export default function XTimeline() {
         ) : (
           shouldLoad && (
             <div
-              ref={embedRef}
+              ref={
+                embedRef
+              }
               className="mx-auto max-w-[900px] px-2 py-2 sm:px-4 sm:py-4"
             >
               <a
@@ -263,7 +304,9 @@ export default function XTimeline() {
                 data-theme="light"
                 data-dnt="true"
                 data-chrome="noheader nofooter noborders transparent"
-                href={X_PROFILE_URL}
+                href={
+                  X_PROFILE_URL
+                }
               >
                 Posts by AHEADInitiates
               </a>
