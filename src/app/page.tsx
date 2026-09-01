@@ -22,6 +22,7 @@ import PartnersGrid from "@/components/flow/PartnersGrid";
 import SocialCards from "@/components/flow/SocialCards";
 import VideoGrid from "@/components/flow/VideoGrid";
 import XTimeline from "@/components/flow/XTimeline";
+import FacebookPageFeed from "@/components/flow/FacebookPageFeed";
 
 
 import {
@@ -794,7 +795,9 @@ export default async function Home() {
         </section>
       )}
       
-<XTimeline />
+      <XTimeline />
+
+      <FacebookPageFeed />
       
       <SocialCards posts={socialPosts} />
     </div>
