@@ -23,6 +23,7 @@ import SocialCards from "@/components/flow/SocialCards";
 import VideoGrid from "@/components/flow/VideoGrid";
 import XTimeline from "@/components/flow/XTimeline";
 import FacebookPageFeed from "@/components/flow/FacebookPageFeed";
+import LinkedInPosts from "@/components/flow/LinkedInPosts";
 
 
 import {
@@ -798,6 +799,8 @@ export default async function Home() {
       <XTimeline />
 
       <FacebookPageFeed />
+
+      <LinkedInPosts />
       
       <SocialCards posts={socialPosts} />
     </div>
